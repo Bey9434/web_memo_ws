@@ -1,11 +1,17 @@
 const express = require("express");
 const app = express();
-const port = 3001; // listenするport番号
 
-app.get("/test", (req, res) => {
-  res.send("hello world test test");
+app.get("/", (req, res) => {
+  res.send("Hello, World!");
 });
 
-app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`);
-});
+// サーバーをテスト環境で直接使うためにエクスポート
+module.exports = app;
+
+// サーバーを実行するコード（テスト時は実行されない）
+if (require.main === module) {
+  const PORT = 3001;
+  app.listen(PORT, () => {
+    console.log(`Server is running on http://localhost:${PORT}`);
+  });
+}
