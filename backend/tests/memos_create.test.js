@@ -3,9 +3,9 @@ const app = require("../src/routes"); // APIをインポート
 
 test("メモのタイトルが欠けている場合、ステータス400エラーを返す", async () => {
   //準備
-  const response = await request(app).POST("/api/memo").send({
+  const response = await request(app).post("/api/memo").send({
     title: " ",
-    content: "テストやで。",
+    content: "テストやで",
   });
 
   //実行＆検証

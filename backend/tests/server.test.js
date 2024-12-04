@@ -1,5 +1,5 @@
 const request = require("supertest");
-const app = require("../server"); // サーバーファイルをインポート
+const app = require("../src/app"); // サーバーファイルをインポート
 
 test("サーバーが起動してルートにアクセスできる", async () => {
   const response = await request(app).get("/");
