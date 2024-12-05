@@ -1,9 +1,23 @@
-import * as sqlite3 from "sqlite3";
-const db = new sqlite3.Database("db");
+const sqlite3 = require("sqlite3").verbose();
 
-db.run(`CREATE TABLE todo (
-  id INTEGER PRIMARY KEY AUTOINCREMENT,
-  content TEXT NOT NULL,
-  user_id INTEGER NOT NULL,
-  created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP -- 作成日時（デフォルト現在時刻）
-)`);
+const db = new sqlite3.Database("./database.sqlite");
+
+db.serialize(() => {
+  db.run(
+    `
+    CREATE TABLE IF NOT EXISTS memos (
+      id INTEGER PRIMARY KEY AUTOINCREMENT,
+      title TEXT NOT NULL,
+      content TEXT
+    )`,
+    (err) => {
+      if (err) {
+        console.error("Error creating table:", err.message);
+      } else {
+        console.log("Table 'memos' created successfully.");
+      }
+    }
+  );
+});
+
+db.close();

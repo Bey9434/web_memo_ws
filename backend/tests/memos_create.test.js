@@ -1,10 +1,6 @@
 const request = require("supertest"); // supertestをインポート
 const app = require("../src/app"); // APIをインポート
-
-//重複したリクエスト処理の共通化
-const post_memo = async (data) => {
-  return await request(app).post("/api/memos").send(data);
-};
+const { post_memo } = require("../src/utils/api_utiles"); //utils関数をオンポート
 
 describe("メモ作成のテスト", () => {
   test("メモのタイトルが欠けている場合、ステータス400エラーを返す", async () => {
