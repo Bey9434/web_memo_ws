@@ -12,10 +12,9 @@ router.post("/", validate_memo, (req, res) => {
       console.error("Error saving memo:", err.message);
       return res.status(500).json({ error: "Failed to save memo." });
     }
+    // 成功レスポンス
+    res.status(201).json({ id: lastID, title, content });
   });
-
-  // 成功レスポンス
-  res.status(201).json({ title, content });
 });
 
 module.exports = router;
