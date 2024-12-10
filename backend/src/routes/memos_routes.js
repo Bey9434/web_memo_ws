@@ -4,17 +4,24 @@ const { save_memo, delete_memo } = require("../models/memos_model");
 const router = express.Router();
 
 // メモ作成用のルート。ミドルウェアを連結してルートを定義。コードの再利用のため。
-router.post("/", validate_memo, (req, res) => {
+router.post("/", validate_memo, async (req, res) => {
   const { title, content } = req.body;
 
-  save_memo(title, content, (err, lastID) => {
+  try {
+    const last_id = await save_memo(title, content);
+    res.status(201).json({ id: last_id, title, content });
+  } catch (err) {
+    console.error("Error saving memo", err.message);
+    res.status(500).json({ error: "Failed to save memo" });
+  }
+  /*save_memo(title, content, (err, last_id) => {
     if (err) {
       console.error("Error saving memo:", err.message);
       return res.status(500).json({ error: "Failed to save memo." });
     }
     // 成功レスポンス
-    res.status(201).json({ id: lastID, title, content });
-  });
+    res.status(201).json({ id: last_id, title, content });
+  });*/
 });
 
 // 削除用のルート

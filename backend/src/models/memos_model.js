@@ -5,15 +5,17 @@ const dbPath = path.resolve(__dirname, "../db/database.sqlite");
 const db = new sqlite3.Database(dbPath);
 
 // メモを保存する関数
-function save_memo(title, content, callback) {
-  const query = `INSERT INTO memos (title, content) VALUES (?, ?)`;
-  db.run(query, [title, content], function (err) {
-    if (err) {
-      console.error("Database error:", err.message); // エラー出力
-      callback(err, null);
-      return;
-    }
-    callback(null, this.lastID); // 挿入されたIDを返す
+function save_memo(title, content) {
+  return new Promise((resolve, reject) => {
+    const query = `INSERT INTO memos (title, content) VALUES (?, ?)`;
+    db.run(query, [title, content], function (err) {
+      if (err) {
+        console.error("Database error:", err.message); // エラー出力
+        reject(err);
+      } else {
+        resolve(this.lastID);
+      }
+    });
   });
 }
 //メモを削除する関数
