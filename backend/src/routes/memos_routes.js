@@ -3,7 +3,7 @@ const { validate_memo } = require("../middlewares/validation");
 const { save_memo, delete_memo } = require("../models/memos_model");
 const router = express.Router();
 
-// ミドルウェアを連結してルートを定義。コードの再利用のため。
+// メモ作成用のルート。ミドルウェアを連結してルートを定義。コードの再利用のため。
 router.post("/", validate_memo, (req, res) => {
   const { title, content } = req.body;
 

@@ -13,16 +13,28 @@ describe("メモ削除のテスト", () => {
     created_memo_id = response.body.id; // 作成されたメモのIDを保持
   });
   test("メモ保存をするとステータス200が返され、データが保存される", async () => {
-    //準備
-    const response = await request(app).delete(`/api/memos/${created_memo_id}`);
-    //実行＆検証
-    expect(response.statusCode).toBe(200);
+    const delete_response = await request(app).delete(
+      `/api/memos/${created_memo_id}`
+    );
+    expect(delete_response.statusCode).toBe(200);
+
+    //削除後にデータが存在しないことを確認する。
+    const fetch_response = await request(app).delete(
+      `/api/memos/${created_memo_id}`
+    );
+    expect(fetch_response.statusCode).toBe(404);
+    expect(fetch_response.body).toEqual({ error: "Memo not found." });
   });
 
   test("存在しないメモを削除しようとするとステータス404が返る", async () => {
-    //準備
-    //実行＆検証
     const response = await request(app).delete(`/api/memos/9999`);
     expect(response.statusCode).toBe(404);
+    expect(response.body).toEqual({ error: "Memo not found." });
+  });
+
+  test("無効なIDで削除リクエストを送るとステータス400が返る", async () => {
+    const response = await request(app).delete(`/api/memos/invalid_id`);
+    expect(response.statusCode).toBe(400);
+    expect(response.body).toEqual({ error: "Invalid memo ID" });
   });
 });
