@@ -18,7 +18,7 @@ describe("特定のメモを取得するテスト", () => {
     const response = await request(app).get("/api/memos/9999");
     //実行＆検証
     expect(response.statusCode).toBe(404);
-    expect(response.body).toEqual({ error: "Memo not found" });
+    expect(response.body).toEqual({ error: "Memo not found." });
   });
 
   test("無効なIDでリクエストを送ると400を返す", async () => {

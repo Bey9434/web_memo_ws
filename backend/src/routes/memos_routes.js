@@ -1,63 +1,61 @@
 const express = require("express");
-const { validate_memo } = require("../middlewares/validation");
+const { validate_memo, validate_id } = require("../middlewares/validation");
 const {
   save_memo,
   delete_memo,
   get_memo_by_id,
 } = require("../models/memos_model");
+const { error_handler } = require("../utils/error_handler"); //utils関数をオンポート
 const router = express.Router();
 
 // メモ作成用のルート。ミドルウェアを連結してルートを定義。コードの再利用のため。
 router.post("/", validate_memo, async (req, res) => {
   const { title, content } = req.body;
-
   try {
     const last_id = await save_memo(title, content);
     res.status(201).json({ id: last_id, title, content });
   } catch (err) {
     console.error("Error saving memo", err.message);
-    res.status(500).json({ error: "Failed to save memo" });
+    error_handler(res, err, 500, "Failed to save memo");
   }
 });
 
 // 削除用のルート
-router.delete("/:id", async (req, res) => {
-  const memo_id = parseInt(req.params.id, 10);
-  // 無効なIDチェック
-  if (isNaN(memo_id)) {
-    return res.status(400).json({ error: "Invalid memo ID" });
-  }
-
+router.delete("/:id", validate_id, async (req, res) => {
   try {
-    const changes = await delete_memo(memo_id);
+    const changes = await delete_memo(req.memo_id);
     if (changes === 0) {
-      return res.status(404).json({ error: "Memo not found." });
+      return error_handler(
+        res,
+        new Error("Memo not found"),
+        404,
+        "Memo not found."
+      );
     }
     res.status(200).json({ message: "Memo deleted successfully." });
   } catch (err) {
     console.error("Error deleting memo:", err.message);
-    res.status(500).json({ error: "Failed to delete memo" });
+    error_handler(res, err, 500, "Failed to delete memo");
   }
 });
 
 //特定のメモを取得するルート
-router.get("/:id", async (req, res) => {
-  const memo_id = parseInt(req.params.id, 10);
-  // 無効なIDチェック
-  if (isNaN(memo_id)) {
-    return res.status(400).json({ error: "Invalid memo ID" });
-  }
-
+router.get("/:id", validate_id, async (req, res) => {
   try {
-    const memo = await get_memo_by_id(memo_id);
+    const memo = await get_memo_by_id(req.memo_id);
     if (!memo) {
-      return res.status(404).json({ error: "Memo not found" });
+      return error_handler(
+        res,
+        new Error("Memo not found"),
+        404,
+        "Memo not found."
+      );
     }
     console.log("Memo retrieved successfully:", memo); // 取得データのログ
     res.status(200).json(memo);
   } catch (err) {
     console.error("Error fetching memo:", err.message);
-    res.status(500).json({ error: "Failed to fetch memo" });
+    error_handler(res, err, 500, "Failed to fetch memo");
   }
 });
 
