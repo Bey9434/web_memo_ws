@@ -1,6 +1,10 @@
 const express = require("express");
 const { validate_memo } = require("../middlewares/validation");
-const { save_memo, delete_memo } = require("../models/memos_model");
+const {
+  save_memo,
+  delete_memo,
+  get_memo_by_id,
+} = require("../models/memos_model");
 const router = express.Router();
 
 // メモ作成用のルート。ミドルウェアを連結してルートを定義。コードの再利用のため。
@@ -14,34 +18,47 @@ router.post("/", validate_memo, async (req, res) => {
     console.error("Error saving memo", err.message);
     res.status(500).json({ error: "Failed to save memo" });
   }
-  /*save_memo(title, content, (err, last_id) => {
-    if (err) {
-      console.error("Error saving memo:", err.message);
-      return res.status(500).json({ error: "Failed to save memo." });
-    }
-    // 成功レスポンス
-    res.status(201).json({ id: last_id, title, content });
-  });*/
 });
 
 // 削除用のルート
-router.delete("/:id", (req, res) => {
+router.delete("/:id", async (req, res) => {
   const memo_id = parseInt(req.params.id, 10);
   // 無効なIDチェック
   if (isNaN(memo_id)) {
     return res.status(400).json({ error: "Invalid memo ID" });
   }
 
-  delete_memo(memo_id, (err, changes) => {
-    if (err) {
-      console.error("Error deleting memo:", err.message);
-      return res.status(500).json({ error: "Failed to delete memo." });
-    }
+  try {
+    const changes = await delete_memo(memo_id);
     if (changes === 0) {
       return res.status(404).json({ error: "Memo not found." });
     }
     res.status(200).json({ message: "Memo deleted successfully." });
-  });
+  } catch (err) {
+    console.error("Error deleting memo:", err.message);
+    res.status(500).json({ error: "Failed to delete memo" });
+  }
+});
+
+//特定のメモを取得するルート
+router.get("/:id", async (req, res) => {
+  const memo_id = parseInt(req.params.id, 10);
+  // 無効なIDチェック
+  if (isNaN(memo_id)) {
+    return res.status(400).json({ error: "Invalid memo ID" });
+  }
+
+  try {
+    const memo = await get_memo_by_id(memo_id);
+    if (!memo) {
+      return res.status(404).json({ error: "Memo not found" });
+    }
+    console.log("Memo retrieved successfully:", memo); // 取得データのログ
+    res.status(200).json(memo);
+  } catch (err) {
+    console.error("Error fetching memo:", err.message);
+    res.status(500).json({ error: "Failed to fetch memo" });
+  }
 });
 
 module.exports = router;
