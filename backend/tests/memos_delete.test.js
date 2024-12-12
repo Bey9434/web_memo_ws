@@ -27,7 +27,7 @@ describe("メモ削除のテスト", () => {
   });
 
   test("存在しないメモを削除しようとするとステータス404が返る", async () => {
-    const delete_response = await send_delete_response(9999);
+    const delete_response = await send_delete_response(999999);
     expect(delete_response.statusCode).toBe(404);
     expect(delete_response.body).toEqual({ error: "Memo not found." });
   });

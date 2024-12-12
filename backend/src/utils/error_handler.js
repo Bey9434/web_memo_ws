@@ -16,4 +16,7 @@ const error_handler = (
   res.status(statusCode).json({ error: message });
 };
 
+/*使い方
+error_handler(res,new Error(""),ステータスコード,"エラーメッセージ"
+*/
 module.exports = { error_handler };
