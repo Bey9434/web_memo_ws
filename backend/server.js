@@ -1,17 +1,13 @@
-const express = require("express");
-const app = express();
+const app = require("./src/app"); // app.jsをインポート
 
-app.get("/", (req, res) => {
-  res.send("Hello, World!");
-});
+const PORT = 3001;
 
-// サーバーをテスト環境で直接使うためにエクスポート
-module.exports = app;
-
-// サーバーを実行するコード（テスト時は実行されない）
+// サーバーを起動（本番環境用）
 if (require.main === module) {
-  const PORT = 3001;
   app.listen(PORT, () => {
     console.log(`Server is running on http://localhost:${PORT}`);
   });
 }
+
+// テスト用にエクスポート
+https: module.exports = app;
