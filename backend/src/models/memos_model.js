@@ -53,4 +53,20 @@ function get_memo_by_id(id) {
     });
   });
 }
-module.exports = { save_memo, delete_memo, get_memo_by_id };
+
+//メモ一覧を取得する関数
+function get_all_memo() {
+  return new Promise((resolve, reject) => {
+    const query = `SELECT * FROM memos ORDER BY id ASC`;
+    db.all(query, (err, rows) => {
+      if (err) {
+        console.error("Database error:", err.message); // エラー出力
+        reject(err);
+        return; // Why: エラーが発生した場合に余計な処理を行わないため。
+      }
+      resolve(rows);
+    });
+  });
+}
+
+module.exports = { db, save_memo, delete_memo, get_memo_by_id, get_all_memo };

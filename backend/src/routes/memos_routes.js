@@ -4,6 +4,7 @@ const {
   save_memo,
   delete_memo,
   get_memo_by_id,
+  get_all_memo,
 } = require("../models/memos_model");
 const { error_handler } = require("../utils/error_handler"); //utils関数をオンポート
 const router = express.Router();
@@ -56,6 +57,18 @@ router.get("/:id", validate_id, async (req, res) => {
   } catch (err) {
     console.error("Error fetching memo:", err.message);
     error_handler(res, err, 500, "Failed to fetch memo");
+  }
+});
+
+//すべてのメモを取得するルート
+router.get("/", async (req, res) => {
+  try {
+    const memos = await get_all_memo();
+    //console.log("Retrieved memos:", memos); //メモを取得できているかの確認
+    res.status(200).json(memos);
+  } catch (err) {
+    console.error("Error fetching memos:", err.message);
+    error_handler(res, err, 500, "Failed to fetch memos.");
   }
 });
 

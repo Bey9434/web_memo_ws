@@ -5,7 +5,7 @@ const { post_memo, fetch_memo } = require("../src/utils/api_utiles"); //utils関
 describe("特定のメモを取得するテスト", () => {
   test("特定のメモを取得すると200を返す", async () => {
     //準備
-    const response = await fetch_memo(3);
+    const response = await fetch_memo(2);
     //実行＆検証
     expect(response.statusCode).toBe(200);
     expect(response.body).toHaveProperty("id");
