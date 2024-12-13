@@ -1,7 +1,6 @@
 const request = require("supertest"); // supertestをインポート
 const app = require("../src/app"); // APIをインポート
 const { post_memo } = require("../src/utils/api_utiles"); //utils関数をオンポート
-const { clear_database } = require("../src/utils/clear_database");
 const { create_test_database } = require("../src/db/test_memory_db");
 
 // メモ削除の共通化関数
