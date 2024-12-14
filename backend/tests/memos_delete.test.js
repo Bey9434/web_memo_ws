@@ -1,6 +1,7 @@
 const request = require("supertest"); // supertestをインポート
 const app = require("../src/app"); // APIをインポート
 const { post_memo } = require("../src/utils/api_utiles"); //utils関数をオンポート
+const { create_test_database } = require("../src/db/test_memory_db");
 
 // メモ削除の共通化関数
 const send_delete_response = async (id) => {
@@ -8,15 +9,23 @@ const send_delete_response = async (id) => {
 };
 describe("メモ削除のテスト", () => {
   let created_memo_id;
-  beforeAll(async () => {
+  let db;
+  beforeEach(async () => {
+    db = create_test_database();
+    app.locals.db = db; // アプリケーションで使用するデータベースを上書き
     const response = await post_memo({
       title: "削除テストだよ",
       content: "これは削除テストの内容のメモやで",
     });
     console.log("Created memo response:", response.body); // レスポンス確認
     created_memo_id = response.body.id; // 作成されたメモのIDを保持
+    console.log("BeforeEach is running");
   });
-  test("メモ保存をするとステータス200が返され、データが保存される", async () => {
+  afterEach(async () => {
+    db.close();
+  });
+
+  test("メモ削除するとステータス200が返され、データが削除される.", async () => {
     const delete_response = await send_delete_response(created_memo_id);
     expect(delete_response.statusCode).toBe(200);
 
