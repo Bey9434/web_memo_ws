@@ -75,4 +75,31 @@ router.get("/", async (req, res) => {
   }
 });
 
+//メモの更新をするルート
+router.put("/:id", validate_id, validate_memo, async (req, res) => {
+  const { db } = req.app.locals;
+  const { put_memo } = create_models(db);
+  const { title, content } = req.body; // 更新データをリクエストボディから取得
+  try {
+    const changes = await put_memo(req.memo_id, title, content);
+    if (changes === 0) {
+      return error_handler(
+        res,
+        new Error("Memo not found"),
+        404,
+        "Memo not found."
+      );
+    }
+    res.status(200).json({
+      message: "Memo put successfully.",
+      id: req.memo_id,
+      title,
+      content,
+    });
+  } catch (err) {
+    console.error("Error put memo:", err.message);
+    error_handler(res, err, 500, "Failed to put memo");
+  }
+});
+
 module.exports = router;

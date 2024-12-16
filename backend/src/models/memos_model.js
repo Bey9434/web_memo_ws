@@ -59,7 +59,20 @@ function create_models(db) {
         });
       });
     },
-  };
+    put_memo: (id, title, content) => {
+      return new Promise((resolve, reject) => {
+        const query = "UPDATE memos SET title = ?, content = ? WHERE id = ?";
+        db.run(query, [title, content, id], function (err) {
+          if (err) {
+            console.error("Database error:", err.message);
+            reject(err);
+          } else {
+            resolve(this.changes);
+          }
+        });
+      });
+    },
+  }; //return.この内側にメソッドを定義する。
 }
 
 module.exports = create_models;
