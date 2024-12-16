@@ -23,8 +23,8 @@ router.delete("/:id", validate_id, async (req, res) => {
   const { db } = req.app.locals;
   const { delete_memo } = create_models(db);
   try {
-    const changes = await delete_memo(req.memo_id);
-    if (changes === 0) {
+    const success = await delete_memo(req.memo_id);
+    if (!success) {
       return error_handler(
         res,
         new Error("Memo not found"),
@@ -80,14 +80,16 @@ router.put("/:id", validate_id, validate_memo, async (req, res) => {
   const { db } = req.app.locals;
   const { put_memo } = create_models(db);
   const { title, content } = req.body; // 更新データをリクエストボディから取得
+  console.log("PUT request received for ID:", req.memo_id); // 追加
+  console.log("Data to update:", { title, content }); // 追加
   try {
-    const changes = await put_memo(req.memo_id, title, content);
-    if (changes === 0) {
+    const memo = await put_memo(req.memo_id, title, content);
+    if (!memo) {
       return error_handler(
         res,
         new Error("Memo not found"),
         404,
-        "Memo not found."
+        "Memo not found"
       );
     }
     res.status(200).json({

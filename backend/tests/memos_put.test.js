@@ -38,4 +38,15 @@ describe("メモ更新のテスト", () => {
       content: "hogehogehogehogehogehoge更新内容",
     });
   });
+  test("メモがなければ404を返す", async () => {
+    const put_response = await send_put_response(9999999);
+    expect(put_response.statusCode).toBe(404);
+    expect(put_response.body).toEqual({ error: "Memo not found" });
+  });
+
+  test("メモがなければ404を返す", async () => {
+    const put_response = await send_put_response("Invalid_ID");
+    expect(put_response.statusCode).toBe(400);
+    expect(put_response.body).toEqual({ error: "Invalid memo ID" });
+  });
 });
