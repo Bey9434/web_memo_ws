@@ -8,8 +8,8 @@ const db = new sqlite3.Database(dbPath);
 function create_models(db) {
   return {
     save_memo: (title, content) => {
+      const query = `INSERT INTO memos (title, content) VALUES (?, ?)`;
       return new Promise((resolve, reject) => {
-        const query = `INSERT INTO memos (title, content) VALUES (?, ?)`;
         db.run(query, [title, content], function (err) {
           if (err) {
             console.error("Database error:", err.message);
@@ -21,21 +21,23 @@ function create_models(db) {
       });
     },
     delete_memo: (id) => {
+      const query = `DELETE FROM memos WHERE id = ?`;
       return new Promise((resolve, reject) => {
-        const query = `DELETE FROM memos WHERE id = ?`;
         db.run(query, [id], function (err) {
           if (err) {
             console.error("Database error:", err.message);
             reject(err);
           } else {
-            resolve(this.changes);
+            resolve(this.changes > 0);
+            //this.changesは削除された行の数を返す。
+            //DELETE FROM memos WHERE id = 1 の場合、id = 1 が存在し削除が成功すると、this.changes は1を返す。
           }
         });
       });
     },
     get_memo_by_id: (id) => {
+      const query = `SELECT * FROM memos WHERE id = ?`;
       return new Promise((resolve, reject) => {
-        const query = `SELECT * FROM memos WHERE id = ?`;
         db.get(query, [id], (err, row) => {
           if (err) {
             console.error("Database error:", err.message);
@@ -47,8 +49,8 @@ function create_models(db) {
       });
     },
     get_all_memo: () => {
+      const query = `SELECT * FROM memos ORDER BY id ASC`;
       return new Promise((resolve, reject) => {
-        const query = `SELECT * FROM memos ORDER BY id ASC`;
         db.all(query, (err, rows) => {
           if (err) {
             console.error("Database error:", err.message);
@@ -59,7 +61,22 @@ function create_models(db) {
         });
       });
     },
-  };
+    put_memo: (id, title, content) => {
+      const query = "UPDATE memos SET title = ?, content = ? WHERE id = ?";
+      return new Promise((resolve, reject) => {
+        db.run(query, [title, content, id], function (err) {
+          if (err) {
+            console.error("Database error:", err.message);
+            reject(err);
+          } else {
+            resolve(this.changes > 0);
+            //更新された行の数を返す。
+            //UPDATE memos SET title = 'new title' WHERE id = 1 の場合、その id = 1 が存在し、更新が成功すると this.changes は 1 を返す。
+          }
+        });
+      });
+    },
+  }; //return.この内側にメソッドを定義する。
 }
 
 module.exports = create_models;
