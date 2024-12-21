@@ -1,10 +1,13 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { useState } from "react";
+import reactLogo from "./assets/react.svg";
+import viteLogo from "/vite.svg";
+import "./App.css";
 
 function App() {
-  const [count, setCount] = useState(0)
+  const [count, setCount] = useState(0);
+  const handleMemoCreated = (memo) => {
+    console.log("新しいメモ:", memo);
+  };
 
   return (
     <>
@@ -16,7 +19,7 @@ function App() {
           <img src={reactLogo} className="logo react" alt="React logo" />
         </a>
       </div>
-      <h1>Vite + React</h1>
+      <h1>りあくとてすと</h1>
       <div className="card">
         <button onClick={() => setCount((count) => count + 1)}>
           count is {count}
@@ -28,8 +31,15 @@ function App() {
       <p className="read-the-docs">
         Click on the Vite and React logos to learn more
       </p>
+      <div className="Aisatsu-ga-dekinaiyatu-ha-kaihatu-mo-dekinai">
+        <p>Hello World</p>
+      </div>
+      <div>
+        <h1>メモアプリ</h1>
+        <Memo_form onMemoCreated={handleMemoCreated} />
+      </div>
     </>
-  )
+  );
 }
 
-export default App
+export default App;
