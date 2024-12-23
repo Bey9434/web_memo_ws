@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import { useState } from "react";
 
 const MemoForm = () => {
   // 状態を作成（入力内容を追跡）
@@ -17,6 +17,7 @@ const MemoForm = () => {
         onChange={handleInputChange} // 入力が変わるたびに呼び出される
       />
       <p>現在の入力: {content}</p>
+      <button>メモを作成</button> {/* ボタンを追加 */}
     </div>
   );
 };
