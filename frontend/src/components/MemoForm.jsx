@@ -7,7 +7,7 @@ export const MemoForm = ({ onSubmit }) => {
   const handleSubmit = () => {
     if (content.trim()) {
       onSubmit(content); // 親から受け取った関数を実行
-      reset(""); // フォームをリセット
+      reset(); // フォームをリセット
     }
   };
 
