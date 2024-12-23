@@ -1,12 +1,14 @@
 import { useState } from "react";
+import { useMemoForm } from "../hooks/useMemoForm";
 
-const MemoForm = () => {
-  // 状態を作成（入力内容を追跡）
-  const [content, setContent] = useState("");
+export const MemoForm = ({ onSubmit }) => {
+  const { content, handleChange, reset } = useMemoForm();
 
-  // 入力が変化したときに状態を更新
-  const handleInputChange = (e) => {
-    setContent(e.target.value);
+  const handleSubmit = () => {
+    if (content.trim()) {
+      onSubmit(content); // 親から受け取った関数を実行
+      reset(""); // フォームをリセット
+    }
   };
 
   return (
@@ -14,12 +16,10 @@ const MemoForm = () => {
       <textarea
         placeholder="Write your memo here..."
         value={content} // 状態を入力に反映
-        onChange={handleInputChange} // 入力が変わるたびに呼び出される
+        onChange={handleChange} // 入力が変わるたびに呼び出される
       />
       <p>現在の入力: {content}</p>
-      <button>メモを作成</button> {/* ボタンを追加 */}
+      <button onClick={handleSubmit}>メモを作成</button> {/* ボタンを追加 */}
     </div>
   );
 };
-
-export { MemoForm };

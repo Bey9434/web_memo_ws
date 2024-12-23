@@ -3,11 +3,15 @@ import reactLogo from "./assets/react.svg";
 import viteLogo from "/vite.svg";
 import "./App.css";
 import { MemoForm } from "./components/MemoForm";
+import { MemoList } from "./components/MemoList";
 
 function App() {
   const [count, setCount] = useState(0);
-  const handleMemoCreated = (memo) => {
-    console.log("新しいメモ:", memo);
+
+  const [memos, setMemos] = useState([]);
+  const handleMemoCreated = (content) => {
+    const newMemo = { id: Date.now(), content };
+    setMemos((prev) => [...prev, newMemo]);
   };
 
   return (
@@ -31,7 +35,8 @@ function App() {
         <p>Hello World</p>
       </div>
       <div>
-        <MemoForm onMemoCreated={handleMemoCreated} />
+        <MemoForm onSubmit={handleMemoCreated} />
+        <MemoList memos={memos} />
       </div>
     </>
   );
