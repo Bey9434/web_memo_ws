@@ -4,14 +4,17 @@ import { MemoForm } from "./components/MemoForm";
 import { MemoList } from "./components/MemoList";
 
 function App() {
-  const [count, setCount] = useState(0);
   const [selectedMemoId, setSelectedMemoId] = useState(null);
-
   const [memos, setMemos] = useState([]);
+
+  // ボタンがクリックされたときにメモを作成する際の処理
   const handleMemoCreated = (content) => {
     const newMemo = { id: Date.now(), content };
-    setMemos((prev) => [...prev, newMemo]);
+    setMemos((prev) => [...prev, newMemo]); // メモを配列に追加
+    setSelectedMemoId((prevId) => (prevId === newMemo.id ? null : newMemo.id));
   };
+
+  // メモを選択した時の処理
   const handleSelectMemo = (id) => {
     setSelectedMemoId(id);
   };
@@ -20,11 +23,6 @@ function App() {
     <>
       <div></div>
       <h1>りあくとてすと</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-      </div>
 
       <div className="Aisatsu-ga-dekinaiyatu-ha-kaihatu-mo-dekinai">
         <p>Hello World</p>
