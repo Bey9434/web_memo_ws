@@ -1,42 +1,46 @@
 import { useState } from "react";
-import reactLogo from "./assets/react.svg";
-import viteLogo from "/vite.svg";
 import "./App.css";
 import { MemoForm } from "./components/MemoForm";
 import { MemoList } from "./components/MemoList";
 
 function App() {
-  const [count, setCount] = useState(0);
-
+  const [selectedMemoId, setSelectedMemoId] = useState(null);
   const [memos, setMemos] = useState([]);
-  const handleMemoCreated = (content) => {
+
+  // ボタンがクリックされたときにメモを作成する際の処理
+  const handleCreatedMemo = (content) => {
     const newMemo = { id: Date.now(), content };
-    setMemos((prev) => [...prev, newMemo]);
+    setMemos((prev) => [...prev, newMemo]); // メモを配列に追加
+    setSelectedMemoId((prevId) => (prevId === newMemo.id ? null : newMemo.id));
+  };
+
+  // メモを選択した時の処理
+  const handleSelectedMemo = (id) => {
+    setSelectedMemoId(id);
+  };
+
+  // メモを削除する処理
+  const handleDeletedMemo = (id) => {
+    setMemos((prev) => prev.filter((memo) => memo.id !== id));
+    setSelectedMemoId((prevId) => (prevId === id ? null : prevId));
   };
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
+      <div></div>
       <h1>りあくとてすと</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-      </div>
 
       <div className="Aisatsu-ga-dekinaiyatu-ha-kaihatu-mo-dekinai">
         <p>Hello World</p>
       </div>
       <div>
-        <MemoForm onSubmit={handleMemoCreated} />
-        <MemoList memos={memos} />
+        <MemoForm onSubmit={handleCreatedMemo} />
+        <MemoList
+          memos={memos}
+          onSelect={handleSelectedMemo}
+          selectedMemoId={selectedMemoId}
+          onDelete={handleDeletedMemo}
+        />
       </div>
     </>
   );
