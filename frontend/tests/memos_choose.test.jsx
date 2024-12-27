@@ -32,5 +32,4 @@ describe("メモの選択", () => {
     fireEvent.click(memo2);
     expect(handleSelect).toHaveBeenCalledWith(2); // メモ2が選択されたか確認
   });
-  test()
 });

@@ -8,15 +8,21 @@ function App() {
   const [memos, setMemos] = useState([]);
 
   // ボタンがクリックされたときにメモを作成する際の処理
-  const handleMemoCreated = (content) => {
+  const handleCreatedMemo = (content) => {
     const newMemo = { id: Date.now(), content };
     setMemos((prev) => [...prev, newMemo]); // メモを配列に追加
     setSelectedMemoId((prevId) => (prevId === newMemo.id ? null : newMemo.id));
   };
 
   // メモを選択した時の処理
-  const handleSelectMemo = (id) => {
+  const handleSelectedMemo = (id) => {
     setSelectedMemoId(id);
+  };
+
+  // メモを削除する処理
+  const handleDeletedMemo = (id) => {
+    setMemos((prev) => prev.filter((memo) => memo.id !== id));
+    setSelectedMemoId((prevId) => (prevId === id ? null : prevId));
   };
 
   return (
@@ -28,11 +34,12 @@ function App() {
         <p>Hello World</p>
       </div>
       <div>
-        <MemoForm onSubmit={handleMemoCreated} />
+        <MemoForm onSubmit={handleCreatedMemo} />
         <MemoList
           memos={memos}
-          onSelect={handleSelectMemo}
+          onSelect={handleSelectedMemo}
           selectedMemoId={selectedMemoId}
+          onDelete={handleDeletedMemo}
         />
       </div>
     </>

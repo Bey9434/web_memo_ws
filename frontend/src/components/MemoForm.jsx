@@ -1,6 +1,5 @@
-import { useState } from "react";
 import { useMemoForm } from "../hooks/useMemoForm";
-
+import PropTypes from "prop-types";
 export const MemoForm = ({ onSubmit }) => {
   const { content, handleChange, reset } = useMemoForm();
 
@@ -22,4 +21,9 @@ export const MemoForm = ({ onSubmit }) => {
       <button onClick={handleSubmit}>メモを作成</button> {/* ボタンを追加 */}
     </div>
   );
+};
+
+// PropTypesでpropsの型を定義
+MemoForm.propTypes = {
+  onSubmit: PropTypes.func.isRequired, // onSubmitが関数であることを明示
 };

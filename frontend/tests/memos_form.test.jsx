@@ -2,7 +2,7 @@ import { render, screen, fireEvent } from "@testing-library/react";
 import { MemoForm } from "../src/components/MemoForm";
 import { MemoList } from "../src/components/MemoList";
 import "@testing-library/jest-dom";
-
+const handleSubmit = jest.fn();
 describe("メモフォーム", () => {
   test("メモフォームがレンダリングされるか確認する。", () => {
     render(<MemoForm onMemoCreated={() => {}} />);
@@ -13,7 +13,6 @@ describe("メモフォーム", () => {
   });
 
   test("メモボタン作成を押すとonSubmitが呼ばれ,新しいメモが作成される", () => {
-    const handleSubmit = jest.fn();
     render(<MemoForm onSubmit={handleSubmit} />);
     const textarea = screen.getByPlaceholderText("Write your memo here...");
     const button = screen.getByText("メモを作成");
