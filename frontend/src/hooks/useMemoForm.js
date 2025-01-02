@@ -12,5 +12,5 @@ export const useMemoForm = (initialValue = "") => {
   const reset = () => {
     setContent(""); // フォームをリセット
   };
-  return { content, handleChange, reset };
+  return { content, handleChange, reset, setContent };
 };
