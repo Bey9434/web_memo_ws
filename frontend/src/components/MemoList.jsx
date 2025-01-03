@@ -16,7 +16,7 @@ export const MemoList = ({ memos, onSelect, selectedMemoId, onDelete }) => {
           onClick={() => handleSelect(memo.id)}
           className={memo.id === selectedMemoId ? "selected" : ""}
         >
-          {memo.content}
+          {memo.title}
           <button
             onClick={(e) => {
               e.stopPropagation(); // 親の onClick を止める

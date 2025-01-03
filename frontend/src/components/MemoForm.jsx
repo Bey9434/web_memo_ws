@@ -1,35 +1,49 @@
 import { useMemoForm } from "../hooks/useMemoForm";
 import PropTypes from "prop-types";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 export const MemoForm = ({ onSubmit, selectedMemo }) => {
   const { content, handleChange, reset, setContent } = useMemoForm();
-
+  const [title, setTitle] = useState(""); // タイトルの状態管理を追加
   // メモ選択時にフォームへ内容を反映
   useEffect(() => {
     console.log("selectedMemo:", selectedMemo); // デバッグ
+    setTitle(selectedMemo?.title || ""); // タイトルも反映
     setContent(selectedMemo?.content || ""); // 空文字をデフォルト値としてセット
   }, [selectedMemo, setContent]);
 
   const handleSubmit = () => {
-    if (content.trim()) {
-      onSubmit(content); // 親から受け取った関数を実行
+    if (title.trim()) {
+      onSubmit(title, content); // タイトルと内容を送信
       reset(); // フォームをリセット
+      setTitle(""); // タイトルもリセット
+    } else {
+      alert("タイトルを入力してください"); // タイトルが空の場合にアラート
     }
   };
 
   // 編集キャンセル処理
   const handleCancel = () => {
     setContent(selectedMemo?.content || "");
+    setTitle(selectedMemo?.title || ""); // タイトルも元に戻す
   };
 
   return (
     <div>
+      <input
+        type="text"
+        placeholder="Write your title here..."
+        value={title}
+        onChange={(e) => setTitle(e.target.value)}
+        style={{ width: "100%", marginBottom: "10px" }}
+      />
+
       <textarea
         placeholder="Write your memo here..."
         value={content} // 状態を入力に反映
         onChange={handleChange} // 入力が変わるたびに呼び出される
+        className="textarea-large"
       />
-      <p>現在の入力: {content}</p>
+      <p></p>
       <button onClick={handleSubmit}>
         {selectedMemo ? "更新" : "メモを作成"}
       </button>

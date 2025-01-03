@@ -11,18 +11,18 @@ function App() {
   const selectedMemo = memos.find((memo) => memo.id === selectedMemoId) || null;
 
   // ボタンがクリックされたときにメモを作成する際の処理
-  const handleCreatedMemo = (content) => {
+  const handleCreatedMemo = (title, content) => {
     if (selectedMemo) {
       // 編集モード - メモを更新
       setMemos((prev) =>
         prev.map((memo) =>
-          memo.id === selectedMemo.id ? { ...memo, content } : memo
+          memo.id === selectedMemo.id ? { ...memo, title, content } : memo
         )
       );
       setSelectedMemoId(null); // 編集後に選択解除
     } else {
       // 新規作成モード
-      const newMemo = { id: Date.now(), content };
+      const newMemo = { id: Date.now(), title, content };
       setMemos((prev) => [...prev, newMemo]);
     }
   };
