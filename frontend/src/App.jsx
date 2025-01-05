@@ -38,6 +38,17 @@ function App() {
     setSelectedMemoId((prevId) => (prevId === id ? null : prevId));
   };
 
+  const handleOutsideClick = (e) => {
+    // テキストフィールドクリック時は選択解除しない
+    if (
+      !e.target.closest(".memo-item") &&
+      !e.target.closest("textarea") &&
+      !e.target.closest("input")
+    ) {
+      setSelectedMemoId(null);
+    }
+  };
+
   return (
     <>
       <div></div>
@@ -46,7 +57,7 @@ function App() {
       <div className="Aisatsu-ga-dekinaiyatu-ha-kaihatu-mo-dekinai">
         <p>Hello World</p>
       </div>
-      <div>
+      <div onClick={handleOutsideClick}>
         <MemoForm onSubmit={handleCreatedMemo} selectedMemo={selectedMemo} />
         <MemoList
           memos={memos}

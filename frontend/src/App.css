@@ -51,3 +51,12 @@
   padding: 10px; /* 余白を設定 */
   box-sizing: border-box; /* paddingとborderを含めてサイズを計算 */
 }
+
+ul {
+  list-style: none; /* 箇条書きの・を消す */
+  padding: 0; /* リストの左側の余白も消す */
+}
+
+li {
+  margin-bottom: 8px; /* リスト項目の間隔を調整 (任意) */
+}
