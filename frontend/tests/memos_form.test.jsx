@@ -21,10 +21,13 @@ describe("メモフォームとメモリストの統合テスト", () => {
     window.alert.mockRestore();
   });
 
-  test("メモがリストに表示され、タイトルクリックでtextareaに内容が反映される", () => {
+  test("メモがリストに表示され、タイトルクリックでtextareaに内容が反映される", async () => {
     // メモを2つ作成
-    createMemo("タイトル1", "hoge1", titleInput, textarea, submitButton);
-    createMemo("タイトル2", "ほげ2", titleInput, textarea, submitButton);
+    await createMemo("タイトル1", "hoge1", titleInput, textarea, submitButton);
+    await createMemo("タイトル2", "ほげ2", titleInput, textarea, submitButton);
+
+    // タイトル1が表示されるのを待つ
+    await screen.findByText("タイトル1");
 
     // タイトル1をクリックしてメモを選択
     fireEvent.click(screen.getByText("タイトル1"));

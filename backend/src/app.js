@@ -1,6 +1,34 @@
 const express = require("express");
 const app = express();
 
+const path = require("path");
+const sqlite3 = require("sqlite3").verbose();
+const cors = require("cors");
+
+app.use(
+  cors({
+    origin: "http://localhost:5173", // フロントエンドのオリジンを許可
+    methods: "GET,HEAD,PUT,PATCH,POST,DELETE",
+    credentials: true,
+  })
+);
+
+app.use(express.json());
+
+// 本番環境のデータベース設定
+const db = new sqlite3.Database(
+  path.resolve(__dirname, "./db/database.sqlite"), // 本番DB
+  (err) => {
+    if (err) {
+      console.error("Error connecting to database:", err.message);
+    } else {
+      console.log("Connected to production database.");
+    }
+  }
+);
+
+// データベースをアプリケーションにセット
+app.locals.db = db;
 // ルート定義
 app.get("/", (req, res) => {
   res.send("Hello, World!");

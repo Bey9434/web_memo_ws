@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import "./App.css";
 import { MemoForm } from "./components/MemoForm";
 import { MemoList } from "./components/MemoList";
@@ -6,24 +6,49 @@ import { MemoList } from "./components/MemoList";
 function App() {
   const [selectedMemoId, setSelectedMemoId] = useState(null);
   const [memos, setMemos] = useState([]);
-
-  // 現在選択されているメモを取得する関数
   const selectedMemo = memos.find((memo) => memo.id === selectedMemoId) || null;
 
-  // ボタンがクリックされたときにメモを作成する際の処理
-  const handleCreatedMemo = (title, content) => {
-    if (selectedMemo) {
-      // 編集モード - メモを更新
-      setMemos((prev) =>
-        prev.map((memo) =>
-          memo.id === selectedMemo.id ? { ...memo, title, content } : memo
-        )
-      );
-      setSelectedMemoId(null); // 編集後に選択解除
+  // メモ一覧を取得する関数
+  const fetchMemos = async () => {
+    try {
+      const response = await fetch("http://localhost:3001/api/memos");
+      if (response.ok) {
+        const data = await response.json();
+        setMemos(data); // 取得したメモ一覧をセット
+        console.log("取得したメモ:", data); // デバッグ用
+      } else {
+        console.error("メモの取得に失敗しました");
+      }
+    } catch (error) {
+      console.error("エラー発生:", error);
+    }
+  };
+
+  // 初回レンダリング時にメモ一覧を取得
+  useEffect(() => {
+    fetchMemos();
+  }, []);
+
+  // メモの作成または更新処理
+  const handleCreatedMemo = async (title, content) => {
+    const method = selectedMemo ? "PUT" : "POST";
+    const url = selectedMemo
+      ? `http://localhost:3001/api/memos/${selectedMemo.id}`
+      : "http://localhost:3001/api/memos";
+
+    const response = await fetch(url, {
+      method: method,
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ title, content }),
+    });
+
+    if (response.ok) {
+      await fetchMemos(); // メモ一覧を再取得
+      setSelectedMemoId(null);
     } else {
-      // 新規作成モード
-      const newMemo = { id: Date.now(), title, content };
-      setMemos((prev) => [...prev, newMemo]);
+      alert("メモの保存に失敗しました");
     }
   };
 
@@ -33,13 +58,15 @@ function App() {
   };
 
   // メモを削除する処理
-  const handleDeletedMemo = (id) => {
-    setMemos((prev) => prev.filter((memo) => memo.id !== id));
+  const handleDeletedMemo = async (id) => {
+    await fetch(`http://localhost:3001/api/memos/${id}`, {
+      method: "DELETE",
+    });
+    await fetchMemos(); // 削除後に一覧を再取得
     setSelectedMemoId((prevId) => (prevId === id ? null : prevId));
   };
 
   const handleOutsideClick = (e) => {
-    // テキストフィールドクリック時は選択解除しない
     if (
       !e.target.closest(".memo-item") &&
       !e.target.closest("textarea") &&

@@ -2,8 +2,8 @@
 const sqlite3 = require("sqlite3").verbose();
 const path = require("path"); // pathモジュールをインポート
 // __dirname を基準にした絶対パスを取得
-const dbPath = path.resolve(__dirname, "../db/database.sqlite");
-const db = new sqlite3.Database(dbPath);
+//const dbPath = path.resolve(__dirname, "../db/database.sqlite");
+//const db = new sqlite3.Database(dbPath);
 
 function create_models(db) {
   return {
