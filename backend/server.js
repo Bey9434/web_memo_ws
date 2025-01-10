@@ -1,3 +1,4 @@
+const express = require("express"); // ← expressのインポートが必要
 const app = require("./src/app"); // app.jsをインポート
 
 const PORT = 3001;
@@ -10,4 +11,4 @@ if (require.main === module) {
 }
 
 // テスト用にエクスポート
-https: module.exports = app;
+module.exports = app;

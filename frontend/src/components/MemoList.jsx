@@ -1,7 +1,13 @@
 import PropTypes from "prop-types";
 export const MemoList = ({ memos, onSelect, selectedMemoId, onDelete }) => {
   const handleSelect = (id) => {
-    onSelect(id); // 選択/解除のロジックは親コンポーネント
+    if (selectedMemoId === id) {
+      // すでに選択されているメモを再度クリックした場合は選択解除
+      onSelect(null);
+    } else {
+      // それ以外は通常の選択
+      onSelect(id);
+    }
   }; // メモをクリックした時の処理
 
   const handleDelete = (id) => {
@@ -14,9 +20,11 @@ export const MemoList = ({ memos, onSelect, selectedMemoId, onDelete }) => {
         <li
           key={memo.id}
           onClick={() => handleSelect(memo.id)}
-          className={memo.id === selectedMemoId ? "selected" : ""}
+          className={`memo-item ${
+            memo.id === selectedMemoId ? "selected" : ""
+          }`}
         >
-          {memo.content}
+          {memo.title}
           <button
             onClick={(e) => {
               e.stopPropagation(); // 親の onClick を止める

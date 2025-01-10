@@ -1,43 +1,44 @@
 import { render, screen, fireEvent } from "@testing-library/react";
-import { MemoForm } from "../src/components/MemoForm";
-import { MemoList } from "../src/components/MemoList";
+import App from "../src/App";
 import "@testing-library/jest-dom";
-const handleSubmit = jest.fn();
-describe("メモフォーム", () => {
-  test("メモフォームがレンダリングされるか確認する。", () => {
-    render(<MemoForm onMemoCreated={() => {}} />);
-    expect(
-      screen.getByPlaceholderText("Write your memo here...")
-    ).toBeInTheDocument();
-    expect(screen.getByText("メモを作成")).toBeInTheDocument();
+import { createMemo } from "./utils/testUtils"; // 共通化した関数をインポート
+
+describe("メモフォームとメモリストの統合テスト", () => {
+  let textarea, titleInput, submitButton;
+
+  beforeEach(() => {
+    render(<App />);
+    textarea = screen.getByPlaceholderText("Write your memo here...");
+    titleInput = screen.getByPlaceholderText("Write your title here...");
+    submitButton = screen.getByText("メモを作成");
   });
 
-  test("メモボタン作成を押すとonSubmitが呼ばれ,新しいメモが作成される", () => {
-    render(<MemoForm onSubmit={handleSubmit} />);
-    const textarea = screen.getByPlaceholderText("Write your memo here...");
-    const button = screen.getByText("メモを作成");
-
-    // 入力してからボタンをクリック
-    fireEvent.change(textarea, { target: { value: "新しいメモ" } });
-    fireEvent.click(button);
-
-    // onSubmitが1回呼ばれ、"新しいメモ"が渡されることを確認
-    expect(handleSubmit).toHaveBeenCalledTimes(1);
-    expect(handleSubmit).toHaveBeenCalledWith("新しいメモ");
+  beforeAll(() => {
+    jest.spyOn(window, "alert").mockImplementation(() => {});
   });
 
-  test("メモがリストに表示される。", () => {
-    const memos = [
-      { id: 1, content: "hoge1" },
-      { id: 2, content: "ほげ2" },
-    ];
-    render(<MemoList memos={memos} />);
-    expect(screen.getByText("hoge1")).toBeInTheDocument();
-    expect(screen.getByText("ほげ2")).toBeInTheDocument();
+  afterAll(() => {
+    window.alert.mockRestore();
+  });
 
-    // リスト内のメモが表示されているか確認
-    memos.forEach((memo) => {
-      expect(screen.getByText(memo.content)).toBeInTheDocument();
-    });
+  test("メモがリストに表示され、タイトルクリックでtextareaに内容が反映される", async () => {
+    // メモを2つ作成
+    await createMemo("タイトル1", "hoge1", titleInput, textarea, submitButton);
+    await createMemo("タイトル2", "ほげ2", titleInput, textarea, submitButton);
+
+    // タイトル1が表示されるのを待つ
+    await screen.findByText("タイトル1");
+
+    // タイトル1をクリックしてメモを選択
+    fireEvent.click(screen.getByText("タイトル1"));
+
+    // textareaを再取得して内容が反映されているか確認
+    textarea = screen.getByPlaceholderText("Write your memo here...");
+    expect(textarea.value).toBe("hoge1");
+
+    // タイトル2をクリックして内容が切り替わることを確認
+    fireEvent.click(screen.getByText("タイトル2"));
+    textarea = screen.getByPlaceholderText("Write your memo here...");
+    expect(textarea.value).toBe("ほげ2");
   });
 });

@@ -41,3 +41,22 @@
   background-color: #ddd;
   cursor: pointer;
 }
+
+.textarea-large {
+  width: 400px; /* 横幅を固定 */
+  height: 200px; /* 高さは初期値200px */
+  resize: vertical; /* 縦方向のサイズ変更のみ許可 */
+  overflow: auto; /* 内容が溢れた場合スクロール可能に */
+  font-size: 16px; /* テキストサイズ */
+  padding: 10px; /* 余白を設定 */
+  box-sizing: border-box; /* paddingとborderを含めてサイズを計算 */
+}
+
+ul {
+  list-style: none; /* 箇条書きの・を消す */
+  padding: 0; /* リストの左側の余白も消す */
+}
+
+li {
+  margin-bottom: 8px; /* リスト項目の間隔を調整 (任意) */
+}
