@@ -11,6 +11,7 @@ export const createMemo = async (
   fireEvent.change(titleInput, { target: { value: title } });
   fireEvent.change(textarea, { target: { value: text } });
   fireEvent.click(submitButton);
+  console.log("createMemo: Submitted with title:", title, "content:", text); // 修正: content を text に変更
   // 作成されたメモ要素を返す
   return await screen.findByText(title);
 };

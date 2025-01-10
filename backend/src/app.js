@@ -15,8 +15,9 @@ app.use(
 
 app.use(express.json());
 
-// 本番環境のデータベース設定
-const db = new sqlite3.Database(
+let db;
+/// データベース設定（本番 or テスト切り替え）
+db = new sqlite3.Database(
   path.resolve(__dirname, "./db/database.sqlite"), // 本番DB
   (err) => {
     if (err) {

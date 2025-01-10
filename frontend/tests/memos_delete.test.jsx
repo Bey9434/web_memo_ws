@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import App from "../src/App";
 import "@testing-library/jest-dom";
 import { createMemo } from "./utils/testUtils"; // 共通化した関数をインポート
@@ -19,15 +19,15 @@ describe("メモの削除", () => {
   afterAll(() => {
     window.alert.mockRestore();
   });
-  test("選択されたメモ1を削除し、メモ1が消えていること、メモ2が残っていることを確認する", () => {
-    createMemo(
+  test("選択されたメモ1を削除し、メモ1が消えていること、メモ2が残っていることを確認する", async () => {
+    await createMemo(
       "メモ削除のタイトル１",
       "メモ削除のテスト１だよ",
       titleInput,
       textarea,
       submitButton
     );
-    createMemo(
+    await createMemo(
       "メモ削除のタイトル２",
       "メモ削除のテスト２だよ",
       titleInput,
@@ -41,19 +41,20 @@ describe("メモの削除", () => {
 
     fireEvent.click(deleteButton);
 
-    // メモ1が削除されているか確認
-    expect(screen.queryByText("メモ削除のタイトル１")).toBeNull();
-    expect(screen.getByText("メモ削除のタイトル２")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText("メモ削除のタイトル１")).toBeNull();
+      expect(screen.getByText("メモ削除のタイトル２")).toBeInTheDocument();
+    });
   });
-  test("選択されたメモ2を削除し、メモ2が消えていること、メモ1が残っていることを確認する", () => {
-    createMemo(
+  test("選択されたメモ2を削除し、メモ2が消えていること、メモ1が残っていることを確認する", async () => {
+    await createMemo(
       "メモ削除のタイトル１",
       "メモ削除のテスト１だよ",
       titleInput,
       textarea,
       submitButton
     );
-    createMemo(
+    await createMemo(
       "メモ削除のタイトル２",
       "メモ削除のテスト２だよ",
       titleInput,
@@ -67,9 +68,10 @@ describe("メモの削除", () => {
 
     fireEvent.click(deleteButton);
 
-    // メモ2が削除されているか確認
-    expect(screen.queryByText("メモ削除のタイトル２")).toBeNull();
-    expect(screen.getByText("メモ削除のタイトル１")).toBeInTheDocument();
+    await waitFor(() => {
+      expect(screen.queryByText("メモ削除のタイトル２")).toBeNull();
+      expect(screen.getByText("メモ削除のタイトル１")).toBeInTheDocument();
+    });
   });
   test("メモが1つもない状態で削除ボタンを押してもエラーが出ないことを確認する", () => {
     const deleteButton = screen.queryByText("削除"); // 存在しないボタンを探す

@@ -61,4 +61,9 @@ export const MemoForm = ({ onSubmit, selectedMemo }) => {
 // PropTypesでpropsの型を定義
 MemoForm.propTypes = {
   onSubmit: PropTypes.func.isRequired, // onSubmitが関数であることを明示
+  selectedMemo: PropTypes.shape({
+    // selectedMemoがオブジェクト型であることを定義
+    title: PropTypes.string, // titleが文字列型
+    content: PropTypes.string, // contentが文字列型
+  }),
 };

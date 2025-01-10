@@ -1,4 +1,4 @@
-import { render, screen, fireEvent } from "@testing-library/react";
+import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import App from "../src/App";
 import "@testing-library/jest-dom";
 import { createMemo } from "./utils/testUtils"; // 共通化した関数をインポート
@@ -22,9 +22,9 @@ describe("メモの編集", () => {
     window.alert.mockRestore();
   });
 
-  test("編集後に保存ボタンを押すとメモが更新される", () => {
+  test("編集後に保存ボタンを押すとメモが更新される", async () => {
     // メモを作成
-    createMemo(
+    await createMemo(
       "編集前のタイトル",
       "編集前のメモ",
       titleInput,
@@ -32,9 +32,13 @@ describe("メモの編集", () => {
       submitButton
     );
 
+    // メモが表示されるまで待機
+    const memoElement = await screen.findByText("編集前のタイトル");
+    expect(memoElement).toBeInTheDocument();
+    console.log("Memo rendered:", memoElement);
+
     // メモをクリックして編集モードに切り替える
-    fireEvent.click(screen.getByText("編集前のタイトル"));
-    // フォームにメモの内容が反映されていることを確認
+    fireEvent.click(memoElement);
     expect(textarea.value).toBe("編集前のメモ");
 
     // メモを編集する
@@ -43,7 +47,9 @@ describe("メモの編集", () => {
     fireEvent.click(submitButton);
 
     // メモが編集されていることを確認
-    expect(screen.getByText("編集後のタイトル")).toBeInTheDocument();
-    expect(screen.queryByText("編集前のタイトル")).toBeNull();
+    await waitFor(() => {
+      expect(screen.getByText("編集後のタイトル")).toBeInTheDocument();
+      expect(screen.queryByText("編集前のタイトル")).toBeNull();
+    });
   });
 });

@@ -12,13 +12,8 @@ function App() {
   const fetchMemos = async () => {
     try {
       const response = await fetch("http://localhost:3001/api/memos");
-      if (response.ok) {
-        const data = await response.json();
-        setMemos(data); // 取得したメモ一覧をセット
-        console.log("取得したメモ:", data); // デバッグ用
-      } else {
-        console.error("メモの取得に失敗しました");
-      }
+      const data = await response.json();
+      setMemos(data);
     } catch (error) {
       console.error("エラー発生:", error);
     }
