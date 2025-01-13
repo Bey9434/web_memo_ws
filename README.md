@@ -42,7 +42,7 @@
 1. **リポジトリをクローン**
 
    ```sh
-   git clone https://github.com/Bey9434/memo-app.git
+   git clone https://github.com/Bey9434/web_memo_ws.git
    ```
 
 2. **依存関係をインストール**
