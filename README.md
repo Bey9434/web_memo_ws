@@ -40,24 +40,27 @@
 ### 実行方法
 
 1. **リポジトリをクローン**
+   リポジトリをクローンしたいフォルダーへ移動し、以下を実行する。
 
    ```sh
+   cd your_folder/
    git clone https://github.com/Bey9434/web_memo_ws.git
    ```
 
 2. **依存関係をインストール**
+   ルートディレクトリ、フロントエンドディレクトリ、バックエンドディレクトリへ移動し、npm install を実行する。
 
    ```sh
    # ルートディレクトリで実行
-   cd web-app/
+   cd web_memo_ws/
    npm install
 
-   # backendディレクトリで実行
-   cd web-app/backend
+   # frontend ディレクトリで実行
+   cd frontend
    npm install
 
-   # frontendディレクトリで実行
-   cd web-app/frontend
+   # backend ディレクトリで実行
+   cd ../backend
    npm install
    ```
 
@@ -65,20 +68,28 @@
    初回はデータベースの設定をする必要があるので、以下を実行する。
 
    ```sh
-    cd web-app/backend/src/db/
+    cd src/db/
     node index.js
    ```
 
 4. **サーバーの起動**
+   ルートディレクトリに戻りサーバーを起動する。
 
    ```sh
-   cd web-app/
+   cd ../../..
    npm start
    ```
 
-5. **テストの実行**
+   5.アプリケーションにアクセス
+   ブラウザを開き、以下の URL にアクセスをする。
 
    ```sh
-   cd web-app/
+   http://localhost:5173/
+   ```
+
+5. **テストの実行**
+   プロジェクト全体のテストを実行する。
+   コマンドはルートディレクトリで実行する。
+   ```sh
    npm test
    ```
