@@ -73,12 +73,6 @@ function App() {
 
   return (
     <>
-      <div></div>
-      <h1>りあくとてすと</h1>
-
-      <div className="Aisatsu-ga-dekinaiyatu-ha-kaihatu-mo-dekinai">
-        <p>Hello World</p>
-      </div>
       <div onClick={handleOutsideClick}>
         <MemoForm onSubmit={handleCreatedMemo} selectedMemo={selectedMemo} />
         <MemoList
