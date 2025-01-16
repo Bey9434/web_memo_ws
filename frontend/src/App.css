@@ -37,9 +37,19 @@
   cursor: pointer;
 }
 
+.title-input {
+  width: 100%;
+  margin-bottom: 10px; /* 下にスペースを追加 */
+  padding: 8px;
+  font-size: 16px;
+  box-sizing: border-box;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
 .textarea-large {
   width: 100%; /* 親コンテナに合わせて幅を調整 */
-  max-width: 800px; /* 最大幅を設定（必要に応じて変更） */
+  max-width: 1200px; /* 最大幅を設定（必要に応じて変更） */
   min-width: 200px; /* 最小幅を設定 */
   height: 200px; /* 初期高さを設定 */
   resize: both; /* 横方向と縦方向のサイズ変更を許可 */
