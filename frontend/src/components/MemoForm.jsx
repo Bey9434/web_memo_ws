@@ -36,7 +36,7 @@ export const MemoForm = ({ onSubmit, selectedMemo }) => {
         placeholder="Write your title here..."
         value={title}
         onChange={(e) => setTitle(e.target.value)}
-        style={{ width: "100%", marginBottom: "10px" }}
+        className="title-input"
       />
 
       <textarea
