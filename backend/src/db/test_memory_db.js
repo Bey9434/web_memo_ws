@@ -11,7 +11,9 @@ function create_test_database() {
       CREATE TABLE IF NOT EXISTS memos (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         title TEXT NOT NULL,
-        content TEXT NOT NULL
+        content TEXT NOT NULL,
+        cluster_id INTEGER DEFAULT 0,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
       )
     `);
   });

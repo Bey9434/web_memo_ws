@@ -76,6 +76,19 @@ function create_models(db) {
         });
       });
     },
+    update_cluster_id: (id, cluster_id) => {
+      const query = "UPDATE memos SET cluster_id = ? WHERE id = ?";
+      return new Promise((resolve, reject) => {
+        db.run(query, [cluster_id, id], function (err) {
+          if (err) {
+            console.error("Database error:", err.message);
+            reject(err);
+          } else {
+            resolve(this.changes > 0);
+          }
+        });
+      });
+    },
   }; //return.この内側にメソッドを定義する。
 }
 

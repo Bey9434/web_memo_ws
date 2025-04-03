@@ -104,4 +104,42 @@ router.put("/:id", validate_id, validate_memo, async (req, res) => {
   }
 });
 
+router.put("/:id/cluster", validate_id, async (req, res) => {
+  const { db } = req.app.locals;
+  const { update_cluster_id } = create_models(db); // モデル関数名に注意
+  const cluster_id = req.body.cluster_id;
+
+  console.log("PUT request received for ID:", req.memo_id);
+  console.log("Cluster ID to update:", cluster_id);
+
+  if (typeof cluster_id !== "number" || cluster_id < 0) {
+    return error_handler(
+      res,
+      new Error("Invalid cluster_id"),
+      400,
+      "Invalid cluster_id"
+    );
+  }
+
+  try {
+    const success = await update_cluster_id(req.memo_id, cluster_id); // 修正：関数名
+    if (!success) {
+      return error_handler(
+        res,
+        new Error("Memo not found"),
+        404,
+        "Memo not found"
+      );
+    }
+    res.status(200).json({
+      message: "Memo cluster updated successfully.",
+      id: req.memo_id,
+      cluster_id,
+    });
+  } catch (err) {
+    console.error("Error updating memo cluster:", err.message);
+    error_handler(res, err, 500, "Failed to update memo cluster");
+  }
+});
+
 module.exports = router;

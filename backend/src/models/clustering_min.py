@@ -4,20 +4,20 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.cluster import AgglomerativeClustering
 import json
 from sklearn.metrics.pairwise import cosine_similarity
-import MeCab
 
+from collections import defaultdict
+from sentence_transformers import SentenceTransformer
+import numpy as np
+from sentence_transformers import models
 
-# MeCab Taggerオブジェクトを作成
-mecab = MeCab.Tagger()
+import matplotlib.pyplot as plt
+from sklearn.decomposition import PCA
 
-# 分かち書き用の関数定義
-def tokenize(text):
-    tagger = MeCab.Tagger("-Owakati")
-    return tagger.parse(text).strip()
+from clustering_db_handler import update_cluster_id
 
 # 仮のメモデータ
 memos = [
-     {"id": 1, "text": "魚介系のスープが効いていたラーメン"},
+    {"id": 1, "text": "魚介系のスープが効いていたラーメン"},
     {"id": 2, "text": "塩ラーメンのスープが透き通っていた"},
     {"id": 3, "text": "辛味噌ラーメンにチャーシューが合う"},
     {"id": 4, "text": "家系ラーメンを久々に食べた"},
@@ -46,30 +46,83 @@ memos = [
     {"id": 27, "text": "やる気が出ない原因を考えていた"},
     {"id": 28, "text": "目標を持たないと日々流される"},
     {"id": 29, "text": "小さな成功体験を積み上げたい"},
-    {"id": 30, "text": "感情を言語化することは難しい"}
+    {"id": 30, "text": "感情を言語化することは難しい"},
+    {"id": 31, "text": "火星探査機の打ち上げに成功した"},
+    {"id": 32, "text": "株価が急上昇し経済に影響を与えた"},
+    {"id": 33, "text": "日本の伝統芸能である歌舞伎を観賞した"},
+    {"id": 34, "text": "オーロラが見える北欧への旅行を計画している"},
+    {"id": 34, "text": "胎児よ退治よなぜ踊る。母親の心がわかって恐ろしいのか。ではじまる小説は夢野久作のドグラマグラです"}
 ]
 # TF-IDFベクトル化
-texts = [tokenize(m["text"]) for m in memos]
-vectorizer = TfidfVectorizer(ngram_range=(1, 2))
-X = vectorizer.fit_transform(texts)
+texts = [m["text"] for m in memos]
 
-# 階層クラスタリング（距離しきい値で自動グループ化）
+# ransformer モデルを指定
+bert = models.Transformer("cl-tohoku/bert-base-japanese-v3")
+
+# プーリング層を追加
+pooling = models.Pooling(
+    bert.get_word_embedding_dimension(),
+    pooling_mode_mean_tokens=True
+)
+
+# 3. SentenceTransformer として統合
+model = SentenceTransformer(modules=[bert, pooling])
+
+
+embeddings = model.encode(texts)
+
 clustering = AgglomerativeClustering(
-    n_clusters=None,              # 自動でクラスタ数を決定
-    distance_threshold=0.85,       # しきい値（小さいほど分かれる）
-    metric='cosine',
+    n_clusters=None, distance_threshold=0.2, metric='cosine',      # cosine 類似度で距離計算
     linkage='average'
 )
-labels = clustering.fit_predict(X.toarray())
+labels = clustering.fit_predict(embeddings)
 
 # group_id をメモに追加
 for i, label in enumerate(labels):
-    memos[i]["group_id"] = int(label)
+    memos[i]["cluster_id"] = int(label) + 1  # 1から始まるIDにする
+
+# クラスタリング結果をデータベースに保存
+for m in memos:
+    update_cluster_id(m["id"], m["cluster_id"])
+
+
 
 # 結果をJSONで出力
 print(json.dumps(memos, ensure_ascii=False, indent=2))
-sim = cosine_similarity(X.toarray())
+sim = cosine_similarity(embeddings)
 print("\n📊 類似度行列（cosine similarity）:")
 for row in sim:
     print(["{0:.2f}".format(val) for val in row])
 
+print("\n📌 各クラスタの代表キーワード（TF-IDF）:")
+
+
+# クラスタごとのメモをまとめる
+clustered = defaultdict(list)
+for m in memos:
+    clustered[m["cluster_id"]].append(m["text"])
+
+# クラスタごとに出力
+for gid, texts in clustered.items():
+    print(f"\n🧠 Group {gid} ({len(texts)}件)")
+    for t in texts:
+        print(f" - {t}")
+
+# PCAで次元を2に圧縮
+pca = PCA(n_components=2)
+reduced = pca.fit_transform(embeddings)
+
+# group_idごとに色分けしてプロット
+plt.figure(figsize=(10, 6))
+for gid in set(labels):
+    idx = [i for i, l in enumerate(labels) if l == gid]
+    plt.scatter(reduced[idx, 0], reduced[idx, 1], label=f'Group {gid}', alpha=0.6)
+
+# ラベルつけて表示
+plt.title("🧠 クラスタリング結果の2次元プロット（PCA）")
+plt.xlabel("主成分1")
+plt.ylabel("主成分2")
+plt.legend()
+plt.grid(True)
+plt.tight_layout()
+plt.show()
