@@ -1,6 +1,8 @@
 const sqlite3 = require("sqlite3").verbose();
 
-function create_clusters_table(db) {
+const db = new sqlite3.Database("./database.sqlite");
+
+db.serialize(() => {
   db.run(
     `
     CREATE TABLE IF NOT EXISTS clusters (
@@ -15,6 +17,6 @@ function create_clusters_table(db) {
       else console.log("Table 'clusters' created.");
     }
   );
-}
+});
 
-module.exports = create_clusters_table;
+db.close();

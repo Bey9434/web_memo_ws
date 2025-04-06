@@ -7,10 +7,10 @@ const path = require("path"); // pathモジュールをインポート
 
 function create_models(db) {
   return {
-    save_memo: (title, content) => {
-      const query = `INSERT INTO memos (title, content) VALUES (?, ?)`;
+    save_memo: (title, content, cluster_id) => {
+      const query = `INSERT INTO memos (title, content, cluster_id) VALUES (?, ?, ?)`;
       return new Promise((resolve, reject) => {
-        db.run(query, [title, content], function (err) {
+        db.run(query, [title, content, cluster_id], function (err) {
           if (err) {
             console.error("Database error:", err.message);
             reject(err);
@@ -61,10 +61,11 @@ function create_models(db) {
         });
       });
     },
-    put_memo: (id, title, content) => {
-      const query = "UPDATE memos SET title = ?, content = ? WHERE id = ?";
+    put_memo: (id, title, content, cluster_id) => {
+      const query =
+        "UPDATE memos SET title = ?, content = ?, cluster_id = ? WHERE id = ?";
       return new Promise((resolve, reject) => {
-        db.run(query, [title, content, id], function (err) {
+        db.run(query, [title, content, cluster_id, id], function (err) {
           if (err) {
             console.error("Database error:", err.message);
             reject(err);

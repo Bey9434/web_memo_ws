@@ -42,5 +42,8 @@ app.use(express.json()); // JSONボディのパース。req.bodyを使うため�
 const memosRouter = require("./routes/memos_routes");
 app.use("/api/memos", memosRouter);
 
+const clustersRouter = require("./routes/clusters_routes");
+app.use("/api/clusters", clustersRouter);
+
 // アプリケーションをエクスポート
 module.exports = app;

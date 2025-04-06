@@ -8,10 +8,14 @@ const router = express.Router();
 router.post("/", validate_memo, async (req, res) => {
   const { db } = req.app.locals; // app.locals.db を取得
   const { save_memo } = create_models(db); // データベースに基づいてモデルを生成
-  const { title, content } = req.body;
+  const { title, content, cluster_id } = req.body;
   try {
-    const last_id = await save_memo(title, content);
-    res.status(201).json({ id: last_id, title, content });
+    // cluster_idが渡されていなければ0をデフォルトにする
+    const final_cluster_id = cluster_id || 0;
+    const last_id = await save_memo(title, content, final_cluster_id);
+    res
+      .status(201)
+      .json({ id: last_id, title, content, cluster_id: final_cluster_id });
   } catch (err) {
     console.error("Error saving memo", err.message);
     error_handler(res, err, 500, "Failed to save memo");
@@ -79,11 +83,11 @@ router.get("/", async (req, res) => {
 router.put("/:id", validate_id, validate_memo, async (req, res) => {
   const { db } = req.app.locals;
   const { put_memo } = create_models(db);
-  const { title, content } = req.body; // 更新データをリクエストボディから取得
+  const { title, content, cluster_id } = req.body; // 更新データをリクエストボディから取得
   console.log("PUT request received for ID:", req.memo_id); // 追加
-  console.log("Data to update:", { title, content }); // 追加
+  console.log("Data to update:", { title, content, cluster_id }); // 追加
   try {
-    const memo = await put_memo(req.memo_id, title, content);
+    const memo = await put_memo(req.memo_id, title, content, cluster_id); // 修正：関数名
     if (!memo) {
       return error_handler(
         res,
@@ -97,6 +101,7 @@ router.put("/:id", validate_id, validate_memo, async (req, res) => {
       id: req.memo_id,
       title,
       content,
+      cluster_id,
     });
   } catch (err) {
     console.error("Error put memo:", err.message);
