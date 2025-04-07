@@ -42,35 +42,59 @@ function create_clusters_model(db) {
 
     return autoResults;
   };
+  // すべてのクラスタを取得
+  const get_all_clusters = () => {
+    return new Promise((resolve, reject) => {
+      db.all(
+        "SELECT id, name, origin, created_at FROM clusters ORDER BY id ASC",
+        (err, rows) => {
+          if (err) reject(err);
+          else resolve(rows);
+        }
+      );
+    });
+  };
+  // 新規クラスタを作成
+  const save_cluster = (name, origin = "manual") => {
+    return new Promise((resolve, reject) => {
+      db.run(
+        "INSERT INTO clusters (name, origin) VALUES (?, ?)",
+        [name.trim(), origin],
+        function (err) {
+          if (err) reject(err);
+          else resolve({ id: this.lastID, name: name.trim(), origin });
+        }
+      );
+    });
+  };
+  // クラスタ名を更新
+  const update_cluster_name = (id, name) =>
+    new Promise((resolve, reject) => {
+      db.run(
+        "UPDATE clusters SET name = ? WHERE id = ?",
+        [name, id],
+        function (err) {
+          if (err) return reject(err);
+          resolve(this.changes > 0);
+        }
+      );
+    });
+  //  クラスタを削除
+  const delete_cluster = (id) =>
+    new Promise((resolve, reject) => {
+      db.run("DELETE FROM clusters WHERE id = ?", [id], function (err) {
+        if (err) return reject(err);
+        resolve(this.changes > 0);
+      });
+    });
 
   return {
-    // すべてのクラスタを取得
-    get_all_clusters: () => {
-      return new Promise((resolve, reject) => {
-        db.all(
-          "SELECT id, name, origin, created_at FROM clusters ORDER BY id ASC",
-          (err, rows) => {
-            if (err) reject(err);
-            else resolve(rows);
-          }
-        );
-      });
-    },
-    // 新規クラスタを作成
-    save_cluster: (name, origin = "manual") => {
-      return new Promise((resolve, reject) => {
-        db.run(
-          "INSERT INTO clusters (name, origin) VALUES (?, ?)",
-          [name.trim(), origin],
-          function (err) {
-            if (err) reject(err);
-            else resolve({ id: this.lastID, name: name.trim(), origin });
-          }
-        );
-      });
-    },
+    get_all_clusters,
+    save_cluster,
     delete_auto_clusters: deleteAutoClusters,
     auto_cluster: autoCluster,
+    update_cluster_name,
+    delete_cluster,
   };
 }
 
