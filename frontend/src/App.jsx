@@ -27,29 +27,40 @@ function App() {
       const data = await response.json();
       console.log("💡 fetchMemos response:", data);
       setMemos(data);
+      return data;
     } catch (error) {
       console.error("エラー発生:", error);
     }
   };
 
+  // クラスタ一覧取得
+  const loadClusters = async (currentMemos) => {
+    try {
+      const data = await fetchClusters();
+      // memos は最新 state を使いたいので fetchMemos の後に呼ぶ想定
+      const ids = Array.from(new Set(currentMemos.map((m) => m.cluster_id)));
+      const dynamicClusters = ids
+        .filter((id) => id !== 0 && !data.some((c) => c.id === id))
+        .map((id) => ({ value: id, label: `グループ${id}` }));
+
+      setClusterOptions([
+        { value: 0, label: "未分類" },
+        ...data.map((c) => ({ value: c.id, label: c.name })),
+        ...dynamicClusters,
+      ]);
+    } catch (err) {
+      console.error("クラスタ取得エラー:", err);
+    }
+  };
+
   // 初回レンダリング時にメモ一覧を取得
   useEffect(() => {
-    fetchMemos();
-    fetchClusters()
-      .then((data) => {
-        // 初期値 + API からの値 + memos に出てきたID補完
-        const ids = Array.from(new Set(memos.map((m) => m.cluster_id)));
-        const dynamicClusters = ids
-          .filter((id) => id !== 0 && !data.some((c) => c.id === id))
-          .map((id) => ({ value: id, label: `グループ${id}` }));
-
-        setClusterOptions([
-          { value: 0, label: "未分類" },
-          ...data.map((c) => ({ value: c.id, label: c.name })),
-          ...dynamicClusters,
-        ]);
-      })
-      .catch((err) => console.error("クラスタ取得エラー:", err));
+    // メモ取得 → クラスタ取得 を順に実行
+    fetchMemos()
+      .then(loadClusters)
+      .catch((err) => {
+        console.error("初回ロードエラー:", err);
+      });
   }, []);
 
   // memos に出現する cluster_id をオプションに補完
@@ -139,6 +150,28 @@ function App() {
       alert("クラスタの保存に失敗しました");
     }
   };
+  // 自動クラスタリング実行ハンドラ
+  const handleAutoCluster = async () => {
+    try {
+      const res = await fetch("http://localhost:3001/api/clusters/auto", {
+        method: "POST",
+      });
+      if (!res.ok) {
+        throw new Error("自動分類に失敗しました");
+      }
+      console.log("自動分類 API 呼び出し成功");
+
+      // 成功したらメモとクラスタを再取得
+      const newMemos = await fetchMemos();
+      await loadClusters(newMemos);
+
+      // 完了メッセージ
+      alert("自動分類が完了しました！");
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+    }
+  };
 
   return (
     <>
@@ -169,20 +202,7 @@ function App() {
           <button onClick={handleAddCluster} style={{ marginLeft: 8 }}>
             クラスタ追加
           </button>
-          <button
-            onClick={async () => {
-              const res = await fetch(
-                "http://localhost:3001/api/clusters/auto",
-                { method: "POST" }
-              );
-              if (res.ok) {
-                console.log("自動分類 API 呼び出し成功");
-              } else {
-                console.error("自動分類 API 呼び出し失敗");
-              }
-            }}
-            style={{ marginLeft: 8 }}
-          >
+          <button onClick={handleAutoCluster} style={{ marginLeft: 8 }}>
             自動分類実行
           </button>
         </div>
