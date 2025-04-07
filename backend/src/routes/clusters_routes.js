@@ -34,4 +34,16 @@ router.post("/", async (req, res) => {
   }
 });
 
+router.post("/auto", async (req, res) => {
+  const { db } = req.app.locals;
+  const { auto_cluster } = create_clusters_model(db);
+  try {
+    const clusters = await auto_cluster();
+    res.json({ clusters });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: "Auto clustering failed" });
+  }
+});
+
 module.exports = router;

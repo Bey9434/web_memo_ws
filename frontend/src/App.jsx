@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import { fetchClusters, createCluster } from "./utils/clusrersUtils";
+import { fetchClusters, createCluster } from "./utils/clusterUtils";
 import { MemoForm } from "./components/MemoForm";
 import { MemoList } from "./components/MemoList";
 import { use } from "react";
@@ -168,6 +168,22 @@ function App() {
           />
           <button onClick={handleAddCluster} style={{ marginLeft: 8 }}>
             クラスタ追加
+          </button>
+          <button
+            onClick={async () => {
+              const res = await fetch(
+                "http://localhost:3001/api/clusters/auto",
+                { method: "POST" }
+              );
+              if (res.ok) {
+                console.log("自動分類 API 呼び出し成功");
+              } else {
+                console.error("自動分類 API 呼び出し失敗");
+              }
+            }}
+            style={{ marginLeft: 8 }}
+          >
+            自動分類実行
           </button>
         </div>
 
