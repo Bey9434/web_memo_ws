@@ -1,9 +1,14 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import { fetchClusters, createCluster } from "./utils/clusterUtils";
+import {
+  fetchClusters,
+  createCluster,
+  updateCluster,
+  deleteCluster,
+} from "./utils/clusterUtils";
 import { MemoForm } from "./components/MemoForm";
 import { MemoList } from "./components/MemoList";
-import { use } from "react";
+import { ClusterList } from "./components/ClusterList";
 
 function App() {
   const [selectedMemoId, setSelectedMemoId] = useState(null);
@@ -16,6 +21,7 @@ function App() {
   const [clusterOptions, setClusterOptions] = useState([
     { value: 0, label: "未分類" },
   ]);
+  const [clusters, setClusters] = useState([]);
   // 新規クラスタ名入力用
   const [newClusterLabel, setNewClusterLabel] = useState("");
 
@@ -33,50 +39,32 @@ function App() {
     }
   };
 
-  // クラスタ一覧取得
-  const loadClusters = async (currentMemos) => {
-    try {
-      const data = await fetchClusters();
-      // memos は最新 state を使いたいので fetchMemos の後に呼ぶ想定
-      const ids = Array.from(new Set(currentMemos.map((m) => m.cluster_id)));
-      const dynamicClusters = ids
-        .filter((id) => id !== 0 && !data.some((c) => c.id === id))
-        .map((id) => ({ value: id, label: `グループ${id}` }));
+  // メモ＋クラスタ＋オプションを一度に更新
+  const loadAll = async () => {
+    const memData = await fetchMemos();
+    setMemos(memData);
 
-      setClusterOptions([
-        { value: 0, label: "未分類" },
-        ...data.map((c) => ({ value: c.id, label: c.name })),
-        ...dynamicClusters,
-      ]);
-    } catch (err) {
-      console.error("クラスタ取得エラー:", err);
-    }
+    const clsData = await fetchClusters();
+    setClusters(clsData);
+
+    const staticOpts = clsData.map((c) => ({ value: c.id, label: c.name }));
+    const ids = Array.from(new Set(memData.map((m) => m.cluster_id)));
+    const dynamic = ids
+      .filter((id) => id !== 0 && !clsData.some((c) => c.id === id))
+      .map((id) => ({ value: id, label: `グループ${id}` }));
+
+    setClusterOptions([
+      { value: 0, label: "未分類" },
+      ...staticOpts,
+      ...dynamic,
+    ]);
   };
 
   // 初回レンダリング時にメモ一覧を取得
   useEffect(() => {
     // メモ取得 → クラスタ取得 を順に実行
-    fetchMemos()
-      .then(loadClusters)
-      .catch((err) => {
-        console.error("初回ロードエラー:", err);
-      });
+    loadAll();
   }, []);
-
-  // memos に出現する cluster_id をオプションに補完
-  useEffect(() => {
-    const ids = Array.from(new Set(memos.map((m) => m.cluster_id)));
-    setClusterOptions((opts) => {
-      const existing = new Set(opts.map((o) => o.value));
-      const additions = ids
-        .filter((id) => !existing.has(id))
-        .map((id) => ({
-          value: id,
-          label: id === 0 ? "未分類" : `グループ${id}`,
-        }));
-      return [...opts, ...additions];
-    });
-  }, [memos]);
 
   // フィルタリング
   const filteredMemos = memos.filter((m) =>
@@ -134,47 +122,35 @@ function App() {
 
   // 新しいクラスタを追加する処理
   const handleAddCluster = async () => {
-    const name = newClusterLabel.trim();
-    if (!name) return;
-    try {
-      // API に POST して保存
-      const newCluster = await createCluster(name);
-      // 成功したらローカルにも追加
-      setClusterOptions((prev) => [
-        ...prev,
-        { value: newCluster.id, label: newCluster.name },
-      ]);
-      setNewClusterLabel("");
-    } catch (err) {
-      console.error("クラスタ保存エラー:", err);
-      alert("クラスタの保存に失敗しました");
-    }
+    if (!newClusterLabel.trim()) return;
+    await createCluster(newClusterLabel.trim());
+    setNewClusterLabel("");
+    await loadAll();
   };
   // 自動クラスタリング実行ハンドラ
   const handleAutoCluster = async () => {
-    try {
-      const res = await fetch("http://localhost:3001/api/clusters/auto", {
-        method: "POST",
-      });
-      if (!res.ok) {
-        throw new Error("自動分類に失敗しました");
-      }
-      console.log("自動分類 API 呼び出し成功");
+    await fetch("/api/clusters/auto", { method: "POST" });
+    await loadAll();
+    alert("自動分類が完了しました！");
+  };
 
-      // 成功したらメモとクラスタを再取得
-      const newMemos = await fetchMemos();
-      await loadClusters(newMemos);
+  const handleRename = async (id, name) => {
+    await updateCluster(id, name);
+    await loadAll();
+  };
 
-      // 完了メッセージ
-      alert("自動分類が完了しました！");
-    } catch (err) {
-      console.error(err);
-      alert(err.message);
-    }
+  const handleDelete = async (id) => {
+    await deleteCluster(id);
+    await loadAll();
   };
 
   return (
     <>
+      <ClusterList
+        clusters={clusters}
+        onRename={handleRename}
+        onDelete={handleDelete}
+      />
       <div onClick={handleOutsideClick}>
         {/* フィルター用セレクト */}
         <div style={{ marginBottom: 16 }}>
