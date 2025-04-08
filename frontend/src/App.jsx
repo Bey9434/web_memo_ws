@@ -88,7 +88,7 @@ function App() {
     });
 
     if (response.ok) {
-      await fetchMemos(); // メモ一覧を再取得
+      await loadAll(); // メモ一覧を再取得
       setSelectedMemoId(null);
     } else {
       alert("メモの保存に失敗しました");
@@ -105,7 +105,7 @@ function App() {
     await fetch(`http://localhost:3001/api/memos/${id}`, {
       method: "DELETE",
     });
-    await fetchMemos(); // 削除後に一覧を再取得
+    await loadAll(); // 削除後に一覧を再取得
     setSelectedMemoId((prevId) => (prevId === id ? null : prevId));
   };
 
@@ -129,7 +129,7 @@ function App() {
   };
   // 自動クラスタリング実行ハンドラ
   const handleAutoCluster = async () => {
-    await fetch("/api/clusters/auto", { method: "POST" });
+    await fetch("http://localhost:3001/api/clusters/auto", { method: "POST" });
     await loadAll();
     alert("自動分類が完了しました！");
   };
@@ -145,57 +145,67 @@ function App() {
   };
 
   return (
-    <>
-      <ClusterList
-        clusters={clusters}
-        onRename={handleRename}
-        onDelete={handleDelete}
-      />
-      <div onClick={handleOutsideClick}>
-        {/* フィルター用セレクト */}
-        <div style={{ marginBottom: 16 }}>
-          <label>表示クラスタ：</label>
-          <select
-            value={clusterFilter}
-            onChange={(e) => setClusterFilter(e.target.value)}
-          >
-            <option value="all">すべて</option>
-            {clusterOptions.map((opt) => (
-              <option key={opt.value} value={opt.value}>
-                {opt.label}
-              </option>
-            ))}
-          </select>
-        </div>
+    <div className="app">
+      <header className="header">
+        <h1>My Memo App</h1>
+        <p className="sub-title">あなたの世界観を形にするメモアプリ</p>
+      </header>
 
-        <div style={{ margin: "1rem 0" }}>
-          <input
-            type="text"
-            placeholder="新しいクラスタ名を入力"
-            value={newClusterLabel}
-            onChange={(e) => setNewClusterLabel(e.target.value)}
+      <main className="main-container">
+        <aside className="sidebar">
+          <ClusterList
+            clusters={clusters}
+            onRename={handleRename}
+            onDelete={handleDelete}
           />
-          <button onClick={handleAddCluster} style={{ marginLeft: 8 }}>
-            クラスタ追加
-          </button>
-          <button onClick={handleAutoCluster} style={{ marginLeft: 8 }}>
-            自動分類実行
-          </button>
-        </div>
+          <div className="cluster-add">
+            <input
+              type="text"
+              placeholder="新しいクラスタ名を入力"
+              value={newClusterLabel}
+              onChange={(e) => setNewClusterLabel(e.target.value)}
+            />
+            <button onClick={handleAddCluster}>クラスタ追加</button>
+            <button onClick={handleAutoCluster}>自動分類実行</button>
+          </div>
+          <div className="filter-box">
+            <label>表示クラスタ：</label>
+            <select
+              value={clusterFilter}
+              onChange={(e) => setClusterFilter(e.target.value)}
+            >
+              <option value="all">すべて</option>
+              {clusterOptions.map((opt) => (
+                <option key={opt.value} value={opt.value}>
+                  {opt.label}
+                </option>
+              ))}
+            </select>
+          </div>
+        </aside>
 
-        <MemoForm
-          onSubmit={handleCreatedMemo}
-          selectedMemo={selectedMemo}
-          clusterOptions={clusterOptions}
-        />
-        <MemoList
-          memos={filteredMemos}
-          onSelect={handleSelectedMemo}
-          selectedMemoId={selectedMemoId}
-          onDelete={handleDeletedMemo}
-        />
-      </div>
-    </>
+        <section className="memo-list-container">
+          <MemoList
+            memos={filteredMemos}
+            onSelect={handleSelectedMemo}
+            selectedMemoId={selectedMemoId}
+            onDelete={handleDeletedMemo}
+          />
+        </section>
+
+        <section className="form-container">
+          <MemoForm
+            onSubmit={handleCreatedMemo}
+            selectedMemo={selectedMemo}
+            clusterOptions={clusterOptions}
+          />
+        </section>
+      </main>
+
+      <footer className="footer">
+        <p>&copy; 2025 My Memo App</p>
+      </footer>
+    </div>
   );
 }
 
