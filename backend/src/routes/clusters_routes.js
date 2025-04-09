@@ -45,7 +45,7 @@ router.post("/auto", async (req, res) => {
     res.status(500).json({ error: "Auto clustering failed" });
   }
 });
-// PUT /api/clusters/:id — クラスタ名の更新
+// クラスタ名の更新。
 router.put("/:id", async (req, res) => {
   const { db } = req.app.locals;
   const { update_cluster_name } = create_clusters_model(db);
@@ -55,11 +55,23 @@ router.put("/:id", async (req, res) => {
     return res.status(400).json({ error: "Name is required" });
   }
   try {
-    const success = await update_cluster_name(id, name.trim());
-    if (!success) return res.status(404).json({ error: "Cluster not found" });
-    res.json({ id, name: name.trim() });
+    // 1) 名前を更新
+    const ok = await update_cluster_name(id, name.trim());
+    if (!ok) {
+      return res.status(404).json({ error: "Cluster not found" });
+    }
+    // 2) origin を manual に切り替え
+    await new Promise((resolve, reject) =>
+      db.run(
+        "UPDATE clusters SET origin = 'manual' WHERE id = ?",
+        [id],
+        (err) => (err ? reject(err) : resolve())
+      )
+    );
+    // 3) 更新後のクラスタを返す
+    res.json({ id, name: name.trim(), origin: "manual" });
   } catch (err) {
-    console.error(err);
+    console.error("Error updating cluster:", err);
     res.status(500).json({ error: "Failed to update cluster" });
   }
 });

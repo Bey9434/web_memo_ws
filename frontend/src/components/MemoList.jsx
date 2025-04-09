@@ -1,5 +1,12 @@
 import PropTypes from "prop-types";
-export const MemoList = ({ memos, onSelect, selectedMemoId, onDelete }) => {
+import "./MemoList.css"; // CSSファイルをインポート
+export const MemoList = ({
+  memos,
+  onSelect,
+  selectedMemoId,
+  onDelete,
+  onRightClick,
+}) => {
   const handleSelect = (id) => {
     if (selectedMemoId === id) {
       // すでに選択されているメモを再度クリックした場合は選択解除
@@ -15,25 +22,17 @@ export const MemoList = ({ memos, onSelect, selectedMemoId, onDelete }) => {
   };
 
   return (
-    <ul>
+    <ul data-testid="memo-list">
       {memos.map((memo) => (
         <li
           key={memo.id}
           onClick={() => handleSelect(memo.id)}
+          onContextMenu={(e) => onRightClick(e, memo)}
           className={`memo-item ${
             memo.id === selectedMemoId ? "selected" : ""
           }`}
         >
           {memo.title}
-          <button
-            onClick={(e) => {
-              e.stopPropagation(); // 親の onClick を止める
-              handleDelete(memo.id); // 削除処理を呼び出す
-            }}
-            style={{ marginLeft: "16px" }}
-          >
-            削除
-          </button>
         </li>
       ))}
     </ul>

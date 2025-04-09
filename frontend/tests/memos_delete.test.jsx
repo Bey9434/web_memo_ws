@@ -2,6 +2,7 @@ import { render, screen, fireEvent, waitFor } from "@testing-library/react";
 import App from "../src/App";
 import "@testing-library/jest-dom";
 import { createMemo } from "./utils/testUtils"; // 共通化した関数をインポート
+import { within } from "@testing-library/react";
 
 describe("メモの削除", () => {
   let textarea, titleInput, submitButton;
@@ -37,9 +38,11 @@ describe("メモの削除", () => {
 
     // メモ1の削除ボタンを押す
     const memo1 = screen.getByText("メモ削除のタイトル１");
-    const deleteButton = memo1.closest("li").querySelector("button");
+    fireEvent.contextMenu(memo1); // 右クリック発火
+    await screen.findByText("削除"); // context menu が出るまで待つ
 
-    fireEvent.click(deleteButton);
+    const deleteItem = screen.getByText("削除");
+    fireEvent.click(deleteItem);
 
     await waitFor(() => {
       expect(screen.queryByText("メモ削除のタイトル１")).toBeNull();
@@ -64,9 +67,11 @@ describe("メモの削除", () => {
 
     // メモ2の削除ボタンを押す
     const memo2 = screen.getByText("メモ削除のタイトル２");
-    const deleteButton = memo2.closest("li").querySelector("button");
+    fireEvent.contextMenu(memo2); // 右クリック発火
+    await screen.findByText("削除"); // context menu が出るまで待つ
 
-    fireEvent.click(deleteButton);
+    const deleteItem = screen.getByText("削除");
+    fireEvent.click(deleteItem);
 
     await waitFor(() => {
       expect(screen.queryByText("メモ削除のタイトル２")).toBeNull();
@@ -74,7 +79,13 @@ describe("メモの削除", () => {
     });
   });
   test("メモが1つもない状態で削除ボタンを押してもエラーが出ないことを確認する", () => {
-    const deleteButton = screen.queryByText("削除"); // 存在しないボタンを探す
-    expect(deleteButton).toBeNull(); // ボタンが存在しないことを確認
+    // UI上にメモが表示されていないことを確認
+    const memoItems = within(screen.getByTestId("memo-list")).queryAllByRole(
+      "listitem"
+    );
+    expect(memoItems.length).toBe(0);
+
+    // クラッシュしないこと（メニューが出ないことも確認）
+    expect(screen.queryByText("削除")).not.toBeInTheDocument();
   });
 });

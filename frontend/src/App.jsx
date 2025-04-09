@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import "./App.css";
+import MainLayout from "./components/MainLayout";
 import {
   fetchClusters,
   createCluster,
@@ -14,7 +15,18 @@ function App() {
   const [selectedMemoId, setSelectedMemoId] = useState(null);
   const [memos, setMemos] = useState([]);
   const selectedMemo = memos.find((memo) => memo.id === selectedMemoId) || null;
-
+  const [contextMenu, setContextMenu] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    memo: null,
+  });
+  const [clusterContextMenu, setClusterContextMenu] = useState({
+    visible: false,
+    x: 0,
+    y: 0,
+    cluster: null,
+  });
   // フィルター状態を追加（初期値は "all" で全件表示）
   const [clusterFilter, setClusterFilter] = useState("all");
   // クラスタオプション {value, label}
@@ -25,6 +37,12 @@ function App() {
   // 新規クラスタ名入力用
   const [newClusterLabel, setNewClusterLabel] = useState("");
 
+  //すべて＆未分類をクラスタの先頭に追加して渡す
+  const combinedClusters = [
+    { id: "all", name: "すべて" },
+    { id: 0, name: "未分類" },
+    ...clusters,
+  ];
   // メモ一覧を取得する関数
   const fetchMemos = async () => {
     try {
@@ -110,16 +128,18 @@ function App() {
   };
 
   const handleOutsideClick = (e) => {
-    if (
-      !e.target.closest(".memo-item") &&
-      !e.target.closest("textarea") &&
-      !e.target.closest("input") &&
-      !e.target.closest("select") // 追加！
-    ) {
+    const clickedInsideMenu =
+      e.target.closest(".memo-item") ||
+      e.target.closest("textarea") ||
+      e.target.closest("input") ||
+      e.target.closest("select") ||
+      e.target.closest(".context-menu");
+
+    if (!clickedInsideMenu) {
       setSelectedMemoId(null);
+      setContextMenu({ visible: false, x: 0, y: 0, memo: null });
     }
   };
-
   // 新しいクラスタを追加する処理
   const handleAddCluster = async () => {
     if (!newClusterLabel.trim()) return;
@@ -144,53 +164,110 @@ function App() {
     await loadAll();
   };
 
+  const handleRightClick = (e, memo) => {
+    e.preventDefault();
+
+    // すでに開いているメニューをもう一度同じメモで右クリックしたら閉じる
+    if (contextMenu.visible && contextMenu.memo?.id === memo.id) {
+      setContextMenu({ visible: false, x: 0, y: 0, memo: null });
+      return;
+    }
+    setContextMenu({ visible: true, x: e.pageX, y: e.pageY, memo });
+  };
+  useEffect(() => {
+    document.addEventListener("click", handleOutsideClick);
+    return () => document.removeEventListener("click", handleOutsideClick);
+  }, []);
+
+  const handleClusterRightClick = (e, cluster) => {
+    e.preventDefault();
+
+    // id が 'all' または 0 の場合は右クリック無効
+    if (cluster.id === "all" || cluster.id === 0) return;
+    if (
+      clusterContextMenu.visible &&
+      clusterContextMenu.cluster?.id === cluster.id
+    ) {
+      setClusterContextMenu({ visible: false, x: 0, y: 0, cluster: null });
+    } else {
+      setClusterContextMenu({ visible: true, x: e.pageX, y: e.pageY, cluster });
+    }
+  };
+
+  useEffect(() => {
+    const handleClickOutside = (e) => {
+      if (!e.target.closest(".context-menu")) {
+        setContextMenu({ visible: false, x: 0, y: 0, memo: null });
+        setClusterContextMenu({ visible: false, x: 0, y: 0, cluster: null });
+      }
+    };
+
+    document.addEventListener("click", handleClickOutside);
+    return () => document.removeEventListener("click", handleClickOutside);
+  }, []);
+
+  const handleClusterClick = (id) => {
+    setClusterFilter(String(id)); // 表示グループ切り替えと連動
+  };
+
   return (
     <div className="app">
       <header className="header">
         <h1>My Memo App</h1>
-        <p className="sub-title">あなたの世界観を形にするメモアプリ</p>
+        <p className="sub-title"></p>
       </header>
 
       <main className="main-container">
         <aside className="sidebar">
+          <h2 className="sidebar-title">グループ一覧</h2> {/* ← 追加ここ！ */}
           <ClusterList
-            clusters={clusters}
+            clusters={combinedClusters}
             onRename={handleRename}
             onDelete={handleDelete}
+            onRightClick={handleClusterRightClick}
+            onClick={handleClusterClick}
           />
           <div className="cluster-add">
             <input
               type="text"
-              placeholder="新しいクラスタ名を入力"
+              placeholder="新しいグループ名を入力"
               value={newClusterLabel}
               onChange={(e) => setNewClusterLabel(e.target.value)}
             />
-            <button onClick={handleAddCluster}>クラスタ追加</button>
+            <button onClick={handleAddCluster}>グループ追加</button>
             <button onClick={handleAutoCluster}>自動分類実行</button>
-          </div>
-          <div className="filter-box">
-            <label>表示クラスタ：</label>
-            <select
-              value={clusterFilter}
-              onChange={(e) => setClusterFilter(e.target.value)}
-            >
-              <option value="all">すべて</option>
-              {clusterOptions.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
           </div>
         </aside>
 
         <section className="memo-list-container">
-          <MemoList
-            memos={filteredMemos}
-            onSelect={handleSelectedMemo}
-            selectedMemoId={selectedMemoId}
-            onDelete={handleDeletedMemo}
-          />
+          <div className="memo-list-header">
+            <h2 className="memo-list-title">メモ一覧</h2>
+            <label className="memo-filter-label">
+              表示グループ
+              <select
+                value={clusterFilter}
+                onChange={(e) => setClusterFilter(e.target.value)}
+                className="memo-filter-select"
+              >
+                <option value="all">すべて</option>
+                {clusterOptions.map((opt) => (
+                  <option key={opt.value} value={opt.value}>
+                    {opt.label}
+                  </option>
+                ))}
+              </select>
+            </label>
+          </div>
+
+          <div className="memo-list-body">
+            <MemoList
+              memos={filteredMemos}
+              onSelect={handleSelectedMemo}
+              selectedMemoId={selectedMemoId}
+              onDelete={handleDeletedMemo}
+              onRightClick={handleRightClick}
+            />
+          </div>
         </section>
 
         <section className="form-container">
@@ -201,6 +278,75 @@ function App() {
           />
         </section>
       </main>
+      {contextMenu.visible && (
+        <ul
+          className="context-menu"
+          style={{
+            top: contextMenu.y,
+            left: contextMenu.x,
+            position: "absolute",
+          }}
+        >
+          <li
+            onClick={() => {
+              handleDeletedMemo(contextMenu.memo.id);
+              setContextMenu({ visible: false, x: 0, y: 0, memo: null }); // 閉じる
+            }}
+          >
+            削除
+          </li>
+        </ul>
+      )}
+      {clusterContextMenu.visible && (
+        <ul
+          className="context-menu"
+          style={{
+            top: clusterContextMenu.y,
+            left: clusterContextMenu.x,
+            position: "absolute",
+          }}
+        >
+          <li
+            onClick={() => {
+              const newName = prompt(
+                "新しいグループ名を入力",
+                clusterContextMenu.cluster.name
+              );
+              if (newName) {
+                handleRename(clusterContextMenu.cluster.id, newName.trim());
+              }
+              setClusterContextMenu({
+                visible: false,
+                x: 0,
+                y: 0,
+                cluster: null,
+              });
+            }}
+          >
+            名前編集
+          </li>
+          {clusterContextMenu.cluster.origin === "manual" && (
+            <li
+              onClick={() => {
+                const confirmed = window.confirm(
+                  `グループ「${clusterContextMenu.cluster.name}」を削除しますか？`
+                );
+                if (confirmed) {
+                  handleDelete(clusterContextMenu.cluster.id);
+                }
+                setClusterContextMenu({
+                  visible: false,
+                  x: 0,
+                  y: 0,
+                  cluster: null,
+                });
+              }}
+            >
+              削除
+            </li>
+          )}
+        </ul>
+      )}
 
       <footer className="footer">
         <p>&copy; 2025 My Memo App</p>

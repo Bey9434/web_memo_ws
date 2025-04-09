@@ -1,69 +1,271 @@
-#root {
-  max-width: 1280px;
+/* 共通設定 */
+html,
+body {
+  margin: 0;
+  padding: 0;
+  font-family: "Helvetica Neue", Arial, sans-serif;
+  background-color: #121212;
+  color: #e0e0e0;
+  box-sizing: border-box;
+  width: 100%;
+  overflow-x: hidden;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: inherit;
+}
+
+.app {
   margin: 0 auto;
-  padding: 2rem;
+  padding: 0; /* 左右のくっつき防止 */
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  width: 100vw; /* 横いっぱいに */
+}
+
+/* ヘッダー */
+.header {
   text-align: center;
+  margin-bottom: 1rem;
+}
+.header h1 {
+  font-size: 2.5rem;
+  color: #f44336;
+  margin: 0;
+}
+.sub-title {
+  font-size: 1rem;
+  color: #b0b0b0;
 }
 
-.logo {
-  height: 6em;
-  padding: 1.5em;
-  will-change: filter;
-  transition: filter 300ms;
-}
-.logo:hover {
-  filter: drop-shadow(0 0 2em #4b0f00aa);
-}
-.logo.react:hover {
-  filter: drop-shadow(0 0 2em #f74848aa);
+/* メインエリア */
+.main-container {
+  display: flex;
+  flex: 1;
+  width: 100%;
+  gap: 1rem;
+  padding: 0 1rem;
 }
 
-@keyframes logo-spin {
-  from {
-    transform: rotate(0deg);
-  }
-  to {
-    transform: rotate(360deg);
-  }
+/* 左のサイドバー */
+.sidebar {
+  background-color: #1e1e1e;
+  padding: 1rem;
+  border-radius: 8px;
+  min-width: 220px;
+  max-width: 240px;
+  height: 100vh; /* 全画面に固定 */
+  overflow-y: auto;
+  /flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+.sidebar-title {
+  font-size: 1.1rem;
+  font-weight: bold;
+  color: #f0f0f0;
+  margin-bottom: 0.5rem;
+}
+/* クラスタ追加 */
+.cluster-add input {
+  width: 100%;
+  padding: 8px;
+  background-color: #333;
+  border: 1px solid #444;
+  border-radius: 4px;
+  color: #fff;
 }
 
-@media (prefers-reduced-motion: no-preference) {
-  a:nth-of-type(2) .logo {
-    animation: logo-spin infinite 20s linear;
-  }
-}
-.selected {
-  background-color: #ddd;
+.cluster-add button {
+  padding: 8px;
+  margin-top: 4px;
+  border: none;
+  border-radius: 4px;
+  background-color: #f44336;
+  color: white;
   cursor: pointer;
 }
+.cluster-add button:last-child {
+  background-color: #9c27b0;
+}
 
-.title-input {
+.filter-box select {
   width: 100%;
-  margin-bottom: 10px; /* 下にスペースを追加 */
-  padding: 8px;
-  font-size: 16px;
-  box-sizing: border-box;
-  border: 1px solid #ccc;
+  padding: 6px;
+  background-color: #333;
+  border: 1px solid #444;
+  color: white;
   border-radius: 4px;
 }
 
-.textarea-large {
-  width: 100%; /* 親コンテナに合わせて幅を調整 */
-  max-width: 1200px; /* 最大幅を設定（必要に応じて変更） */
-  min-width: 200px; /* 最小幅を設定 */
-  height: 200px; /* 初期高さを設定 */
-  resize: both; /* 横方向と縦方向のサイズ変更を許可 */
-  overflow: auto; /* 内容が溢れた場合スクロール可能に */
-  font-size: 16px; /* テキストサイズ */
-  padding: 10px; /* 余白を設定 */
-  box-sizing: border-box; /* paddingとborderを含めてサイズを計算 */
+/* メモリスト */
+.memo-list-container {
+  background-color: #1e1e1e;
+  padding: 1rem;
+  border-radius: 8px;
+  overflow-y: auto;
+  border: 1px solid #444;
+  min-width: 220px;
+  max-width: 240px;
+  flex-shrink: 0;
+  max-height: calc(100vh - 200px);
 }
 
-ul {
-  list-style: none; /* 箇条書きの・を消す */
-  padding: 0; /* リストの左側の余白も消す */
+.memo-list-container {
+  background-color: #1e1e1e;
+  border-radius: 8px;
+  border: 1px solid #444;
+  min-width: 220px;
+  max-width: 240px;
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  height: calc(100vh - 150px); /* 表示領域の高さ */
+  overflow: hidden;
 }
 
-li {
-  margin-bottom: 8px; /* リスト項目の間隔を調整 (任意) */
+.memo-list-header {
+  padding: 1rem;
+  border-bottom: 1px solid #444;
+  background-color: #1e1e1e;
+  flex-shrink: 0;
+}
+
+.memo-list-body {
+  overflow-y: auto;
+  flex: 1;
+  padding: 0.5rem;
+}
+.memo-list-body ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  width: 100%;
+}
+
+.memo-list-container::-webkit-scrollbar {
+  width: 8px;
+}
+.memo-list-container::-webkit-scrollbar-thumb {
+  background-color: #555;
+  border-radius: 4px;
+}
+.memo-item {
+  padding: 0.5rem;
+  border-radius: 6px;
+  margin-bottom: 0.5rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.memo-item:hover {
+  background-color: #2a2a2a;
+}
+
+.memo-item.selected {
+  border: 2px solid #ffffff;
+  background-color: #333;
+}
+
+/* メモフォーム（右端） */
+.form-container {
+  flex: 1;
+  background-color: #1e1e1e;
+  padding: 1rem;
+  border-radius: 8px;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  min-width: 0; /* flex-itemの収縮許可 */
+}
+.context-menu {
+  position: absolute;
+  background: white;
+  color: #333;
+  border-radius: 10px;
+  box-shadow: 0px 4px 12px rgba(0, 0, 0, 0.2);
+  padding: 0.5rem 0;
+  list-style: none;
+  z-index: 9999;
+  width: 200px;
+  font-size: 0.95rem;
+  animation: fadeIn 0.15s ease-in-out;
+}
+
+.context-menu li {
+  padding: 10px 16px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  transition: background 0.2s ease;
+}
+
+.context-menu li:hover {
+  background-color: #f5f5f5;
+}
+
+.context-menu .danger {
+  color: #d32f2f;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(2px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.memo-list-header {
+  display: flex;
+  flex-direction: column;
+  gap: 0.25rem;
+  margin-bottom: 1rem;
+}
+
+.memo-list-title {
+  font-size: 1.2rem;
+  font-weight: bold;
+  color: #fff;
+}
+
+.memo-filter-label {
+  font-size: 0.95rem;
+  color: #ccc;
+}
+
+.memo-filter-select {
+  margin-top: 0.25rem;
+  width: 100%;
+  padding: 6px;
+  background-color: #333;
+  border: 1px solid #444;
+  color: white;
+  border-radius: 4px;
+}
+/* フッター */
+.footer {
+  text-align: center;
+  font-size: 0.9rem;
+  color: #777;
+  margin-top: 1rem;
+}
+
+/* レスポンシブ対応 */
+@media (max-width: 768px) {
+  .main-container {
+    flex-direction: column;
+  }
+  .sidebar,
+  .memo-list-container {
+    width: 100%;
+    max-width: 100%;
+  }
 }
