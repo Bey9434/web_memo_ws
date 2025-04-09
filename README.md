@@ -13,7 +13,7 @@
 
 ### 機能一覧
 
-#### CLUD 操作
+#### CRUD 操作
 
 1. **メモの作成（Create）**  
    新しいメモを追加する
@@ -75,6 +75,7 @@
    ```sh
     cd src/db/
     node index.js
+    node clusters_table.js
    ```
 
 4. **サーバーの起動**
