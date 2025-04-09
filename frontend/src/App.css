@@ -19,11 +19,11 @@ body {
 
 .app {
   margin: 0 auto;
-  padding: 0; /* 左右のくっつき防止 */
+  padding: 0;
   height: 100vh;
   display: flex;
   flex-direction: column;
-  width: 100vw; /* 横いっぱいに */
+  width: 100vw;
 }
 
 /* ヘッダー */
@@ -41,25 +41,21 @@ body {
   color: #b0b0b0;
 }
 
-/* メインエリア */
-.main-container {
+/* Split.js メインレイアウト */
+.main-split {
   display: flex;
-  flex: 1;
-  width: 100%;
-  gap: 1rem;
-  padding: 0 1rem;
+  height: calc(100vh - 60px); /* ヘッダー分を差し引く */
 }
 
-/* 左のサイドバー */
+/* サイドバー（固定幅） */
 .sidebar {
   background-color: #1e1e1e;
   padding: 1rem;
   border-radius: 8px;
-  min-width: 220px;
-  max-width: 240px;
-  height: 100vh; /* 全画面に固定 */
+  /* flex-shrink: 1; ← 固定値の場合は必要に応じて解除 */
+  /* min-width: 100px; 削除または変更 */
+  max-width: 400px;
   overflow-y: auto;
-  /flex-shrink: 0;
   display: flex;
   flex-direction: column;
   gap: 1rem;
@@ -70,6 +66,7 @@ body {
   color: #f0f0f0;
   margin-bottom: 0.5rem;
 }
+
 /* クラスタ追加 */
 .cluster-add input {
   width: 100%;
@@ -79,7 +76,6 @@ body {
   border-radius: 4px;
   color: #fff;
 }
-
 .cluster-add button {
   padding: 8px;
   margin-top: 4px;
@@ -93,48 +89,25 @@ body {
   background-color: #9c27b0;
 }
 
-.filter-box select {
-  width: 100%;
-  padding: 6px;
-  background-color: #333;
-  border: 1px solid #444;
-  color: white;
-  border-radius: 4px;
-}
-
-/* メモリスト */
-.memo-list-container {
-  background-color: #1e1e1e;
-  padding: 1rem;
-  border-radius: 8px;
-  overflow-y: auto;
-  border: 1px solid #444;
-  min-width: 220px;
-  max-width: 240px;
-  flex-shrink: 0;
-  max-height: calc(100vh - 200px);
-}
-
+/* メモリスト（可変幅） */
 .memo-list-container {
   background-color: #1e1e1e;
   border-radius: 8px;
   border: 1px solid #444;
-  min-width: 220px;
-  max-width: 240px;
+  min-width: 200px;
+  max-width: 480px;
   flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  height: calc(100vh - 150px); /* 表示領域の高さ */
   overflow: hidden;
+  height: 100%;
 }
-
 .memo-list-header {
   padding: 1rem;
   border-bottom: 1px solid #444;
   background-color: #1e1e1e;
   flex-shrink: 0;
 }
-
 .memo-list-body {
   overflow-y: auto;
   flex: 1;
@@ -146,14 +119,6 @@ body {
   margin: 0;
   width: 100%;
 }
-
-.memo-list-container::-webkit-scrollbar {
-  width: 8px;
-}
-.memo-list-container::-webkit-scrollbar-thumb {
-  background-color: #555;
-  border-radius: 4px;
-}
 .memo-item {
   padding: 0.5rem;
   border-radius: 6px;
@@ -161,27 +126,29 @@ body {
   cursor: pointer;
   transition: background-color 0.2s;
 }
-
 .memo-item:hover {
   background-color: #2a2a2a;
 }
-
 .memo-item.selected {
   border: 2px solid #ffffff;
   background-color: #333;
 }
 
-/* メモフォーム（右端） */
+/* メモフォーム（固定幅） */
 .form-container {
-  flex: 1;
   background-color: #1e1e1e;
   padding: 1rem;
   border-radius: 8px;
   display: flex;
   flex-direction: column;
   overflow-y: auto;
-  min-width: 0; /* flex-itemの収縮許可 */
+  height: 100%;
+  flex: 1; /* ← これで残りの横幅を全部埋める */
+  min-width: 300px;
+  max-width: none;
 }
+
+/* コンテキストメニュー */
 .context-menu {
   position: absolute;
   background: white;
@@ -195,7 +162,6 @@ body {
   font-size: 0.95rem;
   animation: fadeIn 0.15s ease-in-out;
 }
-
 .context-menu li {
   padding: 10px 16px;
   cursor: pointer;
@@ -204,15 +170,12 @@ body {
   gap: 8px;
   transition: background 0.2s ease;
 }
-
 .context-menu li:hover {
   background-color: #f5f5f5;
 }
-
 .context-menu .danger {
   color: #d32f2f;
 }
-
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -223,24 +186,17 @@ body {
     transform: translateY(0);
   }
 }
-.memo-list-header {
-  display: flex;
-  flex-direction: column;
-  gap: 0.25rem;
-  margin-bottom: 1rem;
-}
 
+/* その他 */
 .memo-list-title {
   font-size: 1.2rem;
   font-weight: bold;
   color: #fff;
 }
-
 .memo-filter-label {
   font-size: 0.95rem;
   color: #ccc;
 }
-
 .memo-filter-select {
   margin-top: 0.25rem;
   width: 100%;
@@ -250,6 +206,7 @@ body {
   color: white;
   border-radius: 4px;
 }
+
 /* フッター */
 .footer {
   text-align: center;
@@ -258,14 +215,22 @@ body {
   margin-top: 1rem;
 }
 
-/* レスポンシブ対応 */
+/* gutter のスタイル（任意） */
+.gutter {
+  background-color: #333;
+  cursor: col-resize;
+}
+
+/* レスポンシブ */
 @media (max-width: 768px) {
-  .main-container {
+  .main-split {
     flex-direction: column;
   }
   .sidebar,
-  .memo-list-container {
+  .memo-list-container,
+  .form-container {
     width: 100%;
     max-width: 100%;
+    min-width: unset;
   }
 }

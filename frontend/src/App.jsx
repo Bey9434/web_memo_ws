@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import "./App.css";
-import MainLayout from "./components/MainLayout";
 import {
   fetchClusters,
   createCluster,
@@ -10,6 +9,7 @@ import {
 import { MemoForm } from "./components/MemoForm";
 import { MemoList } from "./components/MemoList";
 import { ClusterList } from "./components/ClusterList";
+import Split from "react-split";
 
 function App() {
   const [selectedMemoId, setSelectedMemoId] = useState(null);
@@ -213,11 +213,16 @@ function App() {
   return (
     <div className="app">
       <header className="header">
-        <h1>My Memo App</h1>
+        <h1>Memo App</h1>
         <p className="sub-title"></p>
       </header>
-
-      <main className="main-container">
+      <Split
+        className="main-split"
+        sizes={[20, 30, 50]} // 左のパネル（サイドバー）のサイズを 15% に変更
+        minSize={[200, 240, 300]} // 最小幅設定（ここを少し緩めに）
+        gutterSize={6}
+        direction="horizontal"
+      >
         <aside className="sidebar">
           <h2 className="sidebar-title">グループ一覧</h2> {/* ← 追加ここ！ */}
           <ClusterList
@@ -277,7 +282,7 @@ function App() {
             clusterOptions={clusterOptions}
           />
         </section>
-      </main>
+      </Split>
       {contextMenu.visible && (
         <ul
           className="context-menu"
@@ -349,7 +354,7 @@ function App() {
       )}
 
       <footer className="footer">
-        <p>&copy; 2025 My Memo App</p>
+        <p>&copy; 2025 Memo</p>
       </footer>
     </div>
   );
